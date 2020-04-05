@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+    <title>data file</title>
+    <style>
+    /* stolen from https://www.w3schools.com/html/html_tables.asp */
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+    </style>
+</head>
+
+
+<body>
+
+<div id="datfileheading" style="text-align:center;">
+    <h1>particle information of {{sername}}:{{simname}} at index {{ind}}</h1>
+    <h2>at <i>t</i> = {{time}}</h2>
+</div>
+
+<form id="loadfiles">
+    <input type="range" min="0" max="{{mdi}}" value="{{ind}}" class="slider" id="myRange"/>
+    <p>Value: <span id="demo"></span></p>
+    <input id="loaddatafile" type="button" value="Display .data file"/>
+<script>
+    var slider = document.getElementById("myRange");
+    var output = document.getElementById("demo");
+    var ldf = document.getElementById("loaddatafile");
+    var formlf = document.getElementById("loadfiles");
+
+    output.innerHTML = slider.value;
+    slider.oninput = function() 
+    {
+          output.innerHTML = this.value;
+    }
+
+    ldf.onclick = function()
+    {
+        formlf.action = '/data/{{sername}}/{{simname}}/'.concat(slider.value);
+        formlf.submit();
+    }
+</script>
+</form>
+
+
+<table style="border: 1px">
+    <thead>
+    <tr>
+        <th colspan="3">position</th>
+        <th colspan="3">velocity</th>
+    </tr>
+    <tr>
+        <th><i>x</i></th>
+        <th><i>y</i></th>
+        <th><i>z</i></th>
+
+        <th><i>u</i></th>
+        <th><i>v</i></th>
+        <th><i>w</i></th>
+
+        <th>radius</th>
+        
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th>species</th>
+    
+    </tr>
+    </thead>
+    {% for l in lines %}
+    <tr>
+        {% for c in l.split(' ') %}
+        <td>{{ c }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+
+
+</body>
+</html>

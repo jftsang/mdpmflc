@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+    <title>file list of {{sername}}:{{simname}}</title>
+</head>
+
+<body>
+
+
+<form id="loadfiles">
+    <input type="range" min="0" max="{{mdi}}" value="0" class="slider" id="myRange"/>
+    <p>Value: <span id="demo"></span></p>
+    <input id="loaddatafile" type="button" value="Display .data file"/>
+<script>
+    var slider = document.getElementById("myRange");
+    var output = document.getElementById("demo");
+    var ldf = document.getElementById("loaddatafile");
+    var formlf = document.getElementById("loadfiles");
+
+    output.innerHTML = slider.value;
+    slider.oninput = function() 
+    {
+          output.innerHTML = this.value;
+    }
+
+    ldf.onclick = function()
+    {
+        formlf.action = '/data/{{sername}}/{{simname}}/'.concat(slider.value);
+        formlf.submit();
+    }
+</script>
+</form>
+
+<p>{# files #}</p>
+
+</body>
+</html>
