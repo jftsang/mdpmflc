@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+    <title>file list of {{sername}}:{{simname}}</title>
+    <link rel = "stylesheet" type = "text/css" href = "/style.css">
+</head>
+
+<body>
+
+<div id="pageheading" style="text-align:center;">
+    <h1>series <a href="/results/{{sername}}">{{sername}}</a>, simulation <a href="/results/{{sername}}/{{simname}}">{{simname}}</a></h1>
+</div>
+
+<div id="timeslider" style="text-align:center;">
+    <form id="loadfiles">
+        <input type="range" min="0" max="{{mdi}}" value="0" 
+            class="slider" id="myRange"/>
+        <p><i>t</i> = <span id="time"></span>, index <span id="ind"></span></p>
+        <input id="loaddatafile" type="button" value="Display .data file"/>
+    <script>
+        var slider = document.getElementById("myRange");
+        var lab_time = document.getElementById("time");
+        var lab_ind = document.getElementById("ind");
+        var ldf = document.getElementById("loaddatafile");
+        var formlf = document.getElementById("loadfiles");
+
+        lab_time.innerHTML = slider.value / ({{ind}} / {{time}});
+        lab_ind.innerHTML = slider.value;
+        slider.oninput = function() 
+        {
+            lab_time.innerHTML = this.value / ({{ind}} / {{time}});
+            lab_ind.innerHTML = this.value;
+        }
+
+        ldf.onclick = function()
+        {
+            formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/data');
+            formlf.submit();
+        }
+    </script>
+    </form>
+</div>
+
+<p>{# files #}</p>
+
+</body>
+</html>

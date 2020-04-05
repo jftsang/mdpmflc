@@ -5,20 +5,28 @@
 </head>
 
 <body>
-    <h1>mdpmflc on {{hostname}}</h1>
+    <h1>mdpmflc</h1>
 
-<p>Welcome to mdpmflc on {{hostname}}. mdpmflc is a web interface for
-<a href="https://www.mercurydpm.org">MercuryDPM</a>, a package for
-running discrete particle model simulations.</p>
+    <p>Welcome to mdpmflc on <tt>{{hostname}}</tt>.</p>
+    
+    <p>mdpmflc is a web interface for 
+    <a href="https://www.mercurydpm.org">MercuryDPM</a>, a package for 
+    running discrete particle model simulations.</p>
 
-<p>The source code of mdpmflc is available at
-<a href="https://github.com/jftsang/mdpmflc">GitHub</a>.</p>
+    <p>The source code of mdpmflc is available at
+    <a href="https://github.com/jftsang/mdpmflc">GitHub</a>.</p>
 
-<p>This instance of mdpmflc on {{hostname}} is configured to run in the
-directory <tt>{{DPMDIR}}</tt>.</p>
+    <p>This instance of mdpmflc on <tt>{{hostname}}</tt> is configured
+    to look for simulation results in the directory <tt>{{DPMDIR}}</tt>.
+    </p>
 
-{{ available_series }}
-
+    <h2>Available simulation series</h2>
+    <ul>
+    {% for ser in available_series %}
+        <li><a href="/results/{{ser}}">{{ser}}</a></li> 
+    {% endfor %}
+    </ul>
+    </p>
 
 </body>
 </html>

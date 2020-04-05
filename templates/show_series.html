@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+    <title>series {{sername}}</title>
+</head>
+
+<body>
+
+    <h1>simulations under the series {{sername}}</h1>
+
+    <p><a href="/">{{hostname}}</a>/{{sername}}</p>
+
+    <h2>Available simulations</h2>
+    <ul>
+    {% for sim in available_simulations %}
+        <li><a href="/results/{{sername}}/{{sim}}/0/data">{{sim}}</a></li> 
+    {% endfor %}
+    </ul>
+
+</body>
+</html>
