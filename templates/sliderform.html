@@ -1,0 +1,52 @@
+
+<div id="timeslider" style="text-align:center;">
+    <form id="form_loadfiles">
+        <input type="range" min="0" max="{{mdi}}" value="{{ind}}" 
+            class="slider" id="myRange"/>
+        <p><i>t</i> = <span id="time"></span>, index <span id="ind"></span></p>
+        <input id="loaddatafile" type="button" value="data"/>
+        <br/>
+        <input id="data_raw" type="button" value="raw .data"/>
+        <input id="fstat_raw" type="button" value="raw .fstat"/>
+        <input id="restart_raw" type="button" value="raw .restart"/>
+
+    <script>
+        var slider = document.getElementById("myRange");
+        var lab_time = document.getElementById("time");
+        var lab_ind = document.getElementById("ind");
+        var formlf = document.getElementById("form_loadfiles");
+
+        lab_time.innerHTML = slider.value * {{dt}};
+        lab_ind.innerHTML = slider.value;
+        slider.oninput = function() 
+        {
+            lab_time.innerHTML = this.value * {{dt}};
+            lab_ind.innerHTML = this.value;
+        }
+
+        document.getElementById("loaddatafile").onclick = function()
+        {
+            formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/data');
+            formlf.submit();
+        }
+
+        document.getElementById("data_raw").onclick = function()
+        {
+            formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/data/raw');
+            formlf.submit();
+        }
+
+        document.getElementById("fstat_raw").onclick = function()
+        {
+            formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/fstat/raw');
+            formlf.submit();
+        }
+
+        document.getElementById("restart_raw").onclick = function()
+        {
+            formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/restart/raw');
+            formlf.submit();
+        }
+    </script>
+    </form>
+</div>
