@@ -38,6 +38,10 @@ from read_data_file import read_data_file
 from graphics import create_data_figure
 
 
+
+# Diagnosis
+from pprint import pprint, pformat
+
 DPMDIR = "/media/asclepius/jmft2/MercuryDPM/MercuryBuild/Drivers/Tutorials"
 SRCDIR = "/media/asclepius/jmft2/MercuryDPM/MercurySource/Drivers/Tutorials"
 DPMDRIVER = "Tutorial9"
@@ -68,6 +72,17 @@ def mainpage():
             available_series=get_available_series(),
             available_drivers=[DPMDRIVER]
     )
+
+
+@app.route("/run", methods=["POST"])
+def run_a_simulation():
+    # https://code.luasoftware.com/tutorials/flask/flask-get-request-parameters-get-post-and-json/
+    if flask.request.method == "GET":
+        raise Exception("Sorry, you should request this page with a POST request")
+
+    return pformat(dir(flask.request.form))
+    return flask.request.form.get("foo")
+    # return Response(flask.request.get_json(), mimetype="application/json")
 
 
 @app.route("/driver/<dri>/")

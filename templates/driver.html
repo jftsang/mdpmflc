@@ -8,11 +8,20 @@
 
 <h1>Driver {{driver}} on server {{hostname}}</h1>
 
-<form>
+<a href="source">source</a>
+
+<h2>series</h2>
+
+<form action="/run" method="post">
     <select>
         {% for s in available_series %}
             <option value="{{s}}">{{s}}</option>
         {% endfor %}
+    </select>
+    <input type="input" name="foo" value="aaa"/>
+    <input type="submit"/>
+</form>
+
 
 </body>
 </html>
