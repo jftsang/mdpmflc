@@ -2,8 +2,13 @@
 <div id="timeslider" style="text-align:center;">
     <form id="form_loadfiles">
         <input type="range" min="0" max="{{mdi}}" value="{{ind}}" 
-            class="slider" id="myRange"/>
-        <p><i>t</i> = <span id="time"></span>, index <span id="ind"></span></p>
+            class="slider" id="index_slider"/>
+
+        <p><i>t</i> = <span id="time"></span>, 
+        ind <input type="number" min="0" max="{{mdi}}" value="{{ind}}" 
+            id="index_number"/>
+
+
         <input id="plot" type="button" value="plot"/>
         <input id="data_page" type="button" value="data"/>
         <input id="fstat_page" type="button" value="fstat"/>
@@ -13,17 +18,24 @@
         <input id="restart_raw" type="button" value="raw .restart"/>
 
     <script>
-        var slider = document.getElementById("myRange");
+        var slider = document.getElementById("index_slider");
+        var index_number = document.getElementById("index_number");
         var lab_time = document.getElementById("time");
-        var lab_ind = document.getElementById("ind");
+        // var lab_ind = document.getElementById("ind");
         var formlf = document.getElementById("form_loadfiles");
 
         lab_time.innerHTML = slider.value * {{dt}};
-        lab_ind.innerHTML = slider.value;
+        // lab_ind.innerHTML = slider.value;
         slider.oninput = function() 
         {
             lab_time.innerHTML = this.value * {{dt}};
-            lab_ind.innerHTML = this.value;
+            // lab_ind.innerHTML = this.value;
+            index_number.value = this.value;
+        }
+
+        index_number.oninput = function()
+        {
+            slider.value = this.value;
         }
 
         document.getElementById("plot").onclick = function()
