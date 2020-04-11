@@ -1,4 +1,3 @@
-
 <div id="timeslider" style="text-align:center;">
     <form id="form_loadfiles">
         <input type="range" min="0" max="{{mdi}}" value="{{ind}}" 
@@ -8,8 +7,9 @@
         ind <input type="number" min="0" max="{{mdi}}" value="{{ind}}" 
             id="index_number"/>
 
-
-        <input id="plot" type="button" value="plot"/>
+        <br/>
+        <input id="plotbutton" type="button" value="plot" width="40%"/>
+        <br/>
         <input id="data_page" type="button" value="data"/>
         <input id="fstat_page" type="button" value="fstat"/>
         <br/>
@@ -25,20 +25,19 @@
         var formlf = document.getElementById("form_loadfiles");
 
         lab_time.innerHTML = slider.value * {{dt}};
-        // lab_ind.innerHTML = slider.value;
         slider.oninput = function() 
         {
             lab_time.innerHTML = this.value * {{dt}};
-            // lab_ind.innerHTML = this.value;
             index_number.value = this.value;
         }
 
         index_number.oninput = function()
         {
+            lab_time.innerHTML = this.value * {{dt}};
             slider.value = this.value;
         }
 
-        document.getElementById("plot").onclick = function()
+        document.getElementById("plotbutton").onclick = function()
         {
             formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/plot');
             formlf.submit();

@@ -110,13 +110,13 @@ def showdatafile(sername, simname, ind):
     dimensions, headline, time, particles = read_data_file(dat_fn)
 
     if dimensions == 2:
-        return render_template("data2d.html",
+        return render_template("results/data2d.html",
                 sername=sername, simname=simname, ind=ind, time=time,
                 dt=get_dt(sername, simname),
                 headline=headline, lines=particles)
 
     if dimensions == 3:
-        return render_template("data3d.html",
+        return render_template("results/data3d.html",
                 sername=sername, simname=simname, ind=ind, time=time,
                 dt=get_dt(sername, simname),
                 headline=headline, lines=particles)
@@ -162,13 +162,13 @@ def showdataplot(sername, simname, ind):
     dimensions, headline, time, particles = read_data_file(dat_fn)
 
     if dimensions == 2:
-        return render_template("data2d_plot.html",
+        return render_template("results/data2d_plot.html",
                 sername=sername, simname=simname, ind=ind, time=time,
                 dt=get_dt(sername, simname),
                 headline=headline, lines=particles)
 
     if dimensions == 3:
-        return render_template("data3d_plot.html",
+        return render_template("results/data3d_plot.html",
                 sername=sername, simname=simname, ind=ind, time=time,
                 dt=get_dt(sername, simname),
                 headline=headline, lines=particles)

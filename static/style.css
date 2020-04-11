@@ -50,3 +50,9 @@ tr:nth-child(even) {
     background: #4CAF50;
     cursor: pointer;
 }
+
+#plotbutton 
+{
+    width: 20%;
+    padding: 6px 6px;
+}
