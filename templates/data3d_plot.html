@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head>
+    <title>data file</title>
+    <link rel = "stylesheet" type = "text/css" href = "/static/style.css">
+</head>
+
+
+<body>
+
+<div id="pageheading" style="text-align:center;">
+    <h1>series <a href="/results/{{sername}}">{{sername}}</a>, simulation <a href="/results/{{sername}}/{{simname}}">{{simname}}</a></h1>
+    <h2>at <i>t</i> = {{time}}, index {{ind}}</h2>
+</div>
+
+{% include 'sliderform.html' %}
+
+
+<img src="/results/{{sername}}/{{simname}}/{{ind}}/plot/png"/>
+
+</body>
+</html>

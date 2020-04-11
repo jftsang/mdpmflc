@@ -1,8 +1,10 @@
+#!/usr/bin/env python3
 """
 Flask web interface for controlling MercuryDPM simulations and viewing their results.
 
 Preparation:
     pip install Flask
+    pip install matplotlib
 
 To run:
     export FLASK_APP='mdpmflc.py'
@@ -15,8 +17,25 @@ from flask import Flask, Response
 from flask import render_template
 app = Flask(__name__)
 
+# https://stackoverflow.com/a/50728936/12695048
+import io
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+# https://matplotlib.org/3.2.1/api/animation_api.html
+from matplotlib.animation import FuncAnimation, ImageMagickWriter
+# https://matplotlib.org/gallery/animation/dynamic_image2.html
+import matplotlib.animation as animation
+
+import random
+from math import pi, sqrt
+import numpy as np
 import os
 import fnmatch
+
+from serve_raw_files import *
+from read_data_file import read_data_file
+
 
 DPMDIR = "/media/asclepius/jmft2/MercuryDPM/MercuryBuild/Drivers/Tutorials"
 DPMDRIVER = "/media/asclepius/jmft2/MercuryDPM/MercuryBuild/Drivers/Tutorials/Tutorial9"
@@ -62,6 +81,7 @@ def show_series(sername):
             sername=sername,
             available_simulations=available_simulations)
 
+
 @app.route('/results/<sername>/<simname>/')
 def showsim(sername, simname):
     """Serve a page showing some summary statistics of this simulation,
@@ -87,66 +107,88 @@ def showsim(sername, simname):
 @app.route('/results/<sername>/<simname>/<ind>/data/')
 def showdatafile(sername, simname, ind):
     dat_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
-    dat_f = open(dat_fn, "r")
-
-    headline = dat_f.readline().strip().split(' ')
-    if len(headline) == 6:
-        dimensions = 2
-    elif len(headline) == 8:
-        dimensions = 3
-    else:
-        raise ValueError
-
-    np = int(headline[0])
-    time = float(headline[1])
-
-    if np <= 50:
-        lines = dat_f.readlines() # FIXME don't read in all lines (dangerous for big files)
-    else:
-        lines = []
-        for i in range(50):
-            lines.append(dat_f.readline().strip())
-
+    dimensions, headline, time, particles = read_data_file(dat_fn)
 
     if dimensions == 2:
         return render_template("data2d.html",
                 sername=sername, simname=simname, ind=ind, time=time,
                 dt=get_dt(sername, simname),
-                headline=headline, lines=lines)
+                headline=headline, lines=particles)
 
     if dimensions == 3:
         return render_template("data3d.html",
                 sername=sername, simname=simname, ind=ind, time=time,
                 dt=get_dt(sername, simname),
-                headline=headline, lines=lines)
+                headline=headline, lines=particles)
 
 
-### Pages that serve up raw files
+@app.route('/results/<sername>/<simname>/<ind>/fstat/')
+def showfstatfile(sername, simname, ind):
+    return ""
 
-@app.route('/results/<sername>/<simname>/<ind>/data/raw')
-def erve_data_raw(sername, simname, ind):
-    """Serve a raw .data. file."""
+
+@app.route("/results/<sername>/<simname>/<ind>/plot/")
+def showdataplot(sername, simname, ind):
     dat_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
-    dat_f = open(dat_fn, "r")
-    return Response(dat_f.read(), mimetype="text/plain")
+    dimensions, headline, time, particles = read_data_file(dat_fn)
+
+    if dimensions == 2:
+        return render_template("data2d_plot.html",
+                sername=sername, simname=simname, ind=ind, time=time,
+                dt=get_dt(sername, simname),
+                headline=headline, lines=particles)
+
+    if dimensions == 3:
+        return render_template("data3d_plot.html",
+                sername=sername, simname=simname, ind=ind, time=time,
+                dt=get_dt(sername, simname),
+                headline=headline, lines=particles)
 
 
-@app.route('/results/<sername>/<simname>/<ind>/fstat/raw')
-def erve_fstat_raw(sername, simname, ind):
-    """Serve a raw .fstat. file."""
-    fstat_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.fstat.{ind}")
-    fstat_f = open(fstat_fn, "r")
-    return Response(fstat_f.read(), mimetype="text/plain")
+@app.route("/results/<sername>/<simname>/<ind>/plot/png")
+def showdataplot_png(sername, simname, ind):
+    data_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
+
+    fig = create_figure(data_fn)
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
 
 
-@app.route('/results/<sername>/<simname>/<ind>/restart/raw')
-def serve_restart_raw(sername, simname, ind):
-    """Serve a raw .restart. file."""
-    restart_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.restart.{ind}")
-    restart_f = open(restart_fn, "r")
-    return Response(restart_f.read(), mimetype="text/plain")
+def create_figure(data_fn):
+    """Plots the data from a .data file."""
+    fig = Figure()
+    axis = fig.add_subplot(1, 1, 1)
+
+
+    dimensions, headline, time, particles = read_data_file(data_fn)
+
+    xs = [p[0] for p in particles]
+    ys = [p[1] for p in particles]
+    if dimensions == 2:
+        rs = [p[5] for p in particles]
+    if dimensions == 3:
+        rs = [p[7] for p in particles]
+
+
+    axis.scatter(xs, ys)
+    # https://stackoverflow.com/questions/33094509/correct-sizing-of-markers-in-scatter-plot-to-a-radius-r-in-matplotlib#33095224
+    # https://stackoverflow.com/questions/14827650/pyplot-scatter-plot-marker-size#14860958
+    # axis.scatter(xs, ys, s=[sqrt(r) for r in rs])
+
+    if dimensions == 2:
+        axis.set_xlim((headline[2], headline[4]))
+        axis.set_ylim((headline[3], headline[5]))
+    if dimensions == 3:
+        axis.set_xlim((headline[2], headline[5]))
+        axis.set_ylim((headline[3], headline[6]))
+    axis.set_aspect('equal')
+
+    axis.grid()
+    return fig
 
 
 @app.route('/style.css')
 def stylesheet():
     return flask.url_for("static", filename="style.css")
+

@@ -4,7 +4,9 @@
         <input type="range" min="0" max="{{mdi}}" value="{{ind}}" 
             class="slider" id="myRange"/>
         <p><i>t</i> = <span id="time"></span>, index <span id="ind"></span></p>
-        <input id="loaddatafile" type="button" value="data"/>
+        <input id="plot" type="button" value="plot"/>
+        <input id="data_page" type="button" value="data"/>
+        <input id="fstat_page" type="button" value="fstat"/>
         <br/>
         <input id="data_raw" type="button" value="raw .data"/>
         <input id="fstat_raw" type="button" value="raw .fstat"/>
@@ -24,9 +26,21 @@
             lab_ind.innerHTML = this.value;
         }
 
-        document.getElementById("loaddatafile").onclick = function()
+        document.getElementById("plot").onclick = function()
+        {
+            formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/plot');
+            formlf.submit();
+        }
+
+        document.getElementById("data_page").onclick = function()
         {
             formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/data');
+            formlf.submit();
+        }
+
+        document.getElementById("fstat_page").onclick = function()
+        {
+            formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/fstat');
             formlf.submit();
         }
 
