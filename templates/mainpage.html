@@ -20,10 +20,20 @@
     to look for simulation results in the directory <tt>{{DPMDIR}}</tt>.
     </p>
 
-    <h2>Available simulation series</h2>
+    <h2>Available simulation series results</h2>
+    <p>
     <ul>
     {% for ser in available_series %}
         <li><a href="/results/{{ser}}">{{ser}}</a></li> 
+    {% endfor %}
+    </ul>
+    </p>
+
+    <h2>Available drivers</h2>
+    <p>
+    <ul>
+    {% for dri in available_drivers %}
+        <li><a href="/driver/{{dri}}">{{dri}}</a> (<a href="/driver/{{dri}}/source">src</a>)</li>
     {% endfor %}
     </ul>
     </p>

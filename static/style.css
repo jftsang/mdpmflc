@@ -56,3 +56,10 @@ tr:nth-child(even) {
     width: 20%;
     padding: 6px 6px;
 }
+
+.codelisting
+{
+    border-left: 3em;
+    border: 1px gray dotted;
+    background-color: beige;
+}

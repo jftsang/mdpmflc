@@ -39,7 +39,8 @@ from graphics import create_data_figure
 
 
 DPMDIR = "/media/asclepius/jmft2/MercuryDPM/MercuryBuild/Drivers/Tutorials"
-DPMDRIVER = "/media/asclepius/jmft2/MercuryDPM/MercuryBuild/Drivers/Tutorials/Tutorial9"
+SRCDIR = "/media/asclepius/jmft2/MercuryDPM/MercurySource/Drivers/Tutorials"
+DPMDRIVER = "Tutorial9"
 
 def get_dt(sername, simname):
     """Get the timestep of a simulation (assuming that this doesn't
@@ -51,17 +52,42 @@ def get_dt(sername, simname):
     return float(headline[1])
 
 
-@app.route('/')
-def mainpage():
+def get_available_series():
     available_series = os.listdir(DPMDIR)
     available_series = [d for d in available_series if os.path.isdir(os.path.join(DPMDIR, d))]
     available_series = [d for d in available_series if d != "CMakeFiles"]
     available_series = sorted(available_series)
+    return available_series
+
+
+@app.route('/')
+def mainpage():
     return render_template("mainpage.html",
             hostname=flask.request.host,
             DPMDIR=DPMDIR,
-            available_series=available_series)
+            available_series=get_available_series(),
+            available_drivers=[DPMDRIVER]
+    )
 
+
+@app.route("/driver/<dri>/")
+def driverpage(dri):
+    return render_template("driver.html",
+            hostname=flask.request.host,
+            driver=dri,
+            available_series=get_available_series(),
+    )
+
+
+@app.route("/driver/<dri>/source")
+def driver_source(dri):
+    src_fn = os.path.join(SRCDIR, dri + ".cpp")
+    src_f = open(src_fn, "r")
+    return render_template("driver_src.html",
+            driver=dri,
+            src=src_f.read())
+
+### Functions for serving up results
 
 @app.route('/results/')
 def redirect_to_main(sername=None):
@@ -188,8 +214,10 @@ def showdataplot_png(sername, simname, ind):
 
 @app.route('/style.css')
 def stylesheet():
-    return flask.url_for("static", filename="style.css")
+    return flask.url_for("static", filename="style.css", mimetype="text/css")
 
+
+### Miscellaneous
 
 @app.route("/anim")
 def anim():

@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+<head>
+    <title>Driver {{driver}} on server {{hostname}}</title>
+</head>
+
+<body>
+
+<h1>Driver {{driver}} on server {{hostname}}</h1>
+
+<form>
+    <select>
+        {% for s in available_series %}
+            <option value="{{s}}">{{s}}</option>
+        {% endfor %}
+
+</body>
+</html>
