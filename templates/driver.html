@@ -13,13 +13,18 @@
 <h2>series</h2>
 
 <form action="/run" method="post">
-    <select>
+    Driver name is <input type="input" name="driver" value={{driver}} readonly/>
+    <br/>
+    Series name
+    <select name="sername">
         {% for s in available_series %}
             <option value="{{s}}">{{s}}</option>
         {% endfor %}
     </select>
-    <input type="input" name="foo" value="aaa"/>
-    <input type="submit"/>
+    <br/>
+    Simulation name <input type="input" name="simname" value="aaa"/>
+    <br/>
+    <input type="submit" value="Run"/>
 </form>
 
 

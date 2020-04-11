@@ -38,13 +38,16 @@ from read_data_file import read_data_file
 from graphics import create_data_figure
 
 
+# For starting new simulations
+import subprocess
+
 
 # Diagnosis
 from pprint import pprint, pformat
 
 DPMDIR = "/media/asclepius/jmft2/MercuryDPM/MercuryBuild/Drivers/Tutorials"
 SRCDIR = "/media/asclepius/jmft2/MercuryDPM/MercurySource/Drivers/Tutorials"
-DPMDRIVER = "Tutorial9"
+DPMDRIVERS = ["Tutorial9"]
 
 def get_dt(sername, simname):
     """Get the timestep of a simulation (assuming that this doesn't
@@ -70,7 +73,7 @@ def mainpage():
             hostname=flask.request.host,
             DPMDIR=DPMDIR,
             available_series=get_available_series(),
-            available_drivers=[DPMDRIVER]
+            available_drivers=DPMDRIVERS
     )
 
 
@@ -80,8 +83,38 @@ def run_a_simulation():
     if flask.request.method == "GET":
         raise Exception("Sorry, you should request this page with a POST request")
 
-    return pformat(dir(flask.request.form))
-    return flask.request.form.get("foo")
+
+    if "driver" in flask.request.values:
+        driver = flask.request.values.get("driver")
+    else:
+        raise Exception("driver not given")
+
+    if driver not in DPMDRIVERS:
+        raise Exception(f"{driver} is not a recognised driver.")
+
+    if "sername" in flask.request.values:
+        sername = flask.request.values.get("sername")
+    else:
+        raise Exception("sername not given")
+
+    if "simname" in flask.request.values:
+        simname = flask.request.values.get("simname")
+    else:
+        raise Exception("simname not given")
+
+
+    simdir = os.path.join(DPMDIR, sername, simname)
+    if not os.path.isdir(simdir):
+        os.mkdir(simdir)
+    else:
+        raise Exception(f"{simdir} already exists")
+
+    executable = os.path.join(DPMDIR, driver)
+
+
+
+    # return pformat(dir(flask.request.form))
+    return f"ser {sername}, sim {simname}"
     # return Response(flask.request.get_json(), mimetype="application/json")
 
 
