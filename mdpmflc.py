@@ -103,18 +103,27 @@ def run_a_simulation():
         raise Exception("simname not given")
 
 
-    simdir = os.path.join(DPMDIR, sername, simname)
-    if not os.path.isdir(simdir):
-        os.mkdir(simdir)
-    else:
-        raise Exception(f"{simdir} already exists")
-
     executable = os.path.join(DPMDIR, driver)
+    simdir = os.path.join(DPMDIR, sername, simname)
+    try:
+        os.mkdir(simdir)
+    except PermissionError as e:
+        raise e # TODO
+    except FileExistsError as e:
+        raise e # TODO
+        # raise e(f"{simdir} already exists")
+
+    # Start the simulation
+    stdout_f = open("/tmp/mdpmflc.log", "a")
+    subprocess.run([executable, "-name", simname],
+                   cwd=simdir,
+                   stdout=stdout_f
+                  )
 
 
 
     # return pformat(dir(flask.request.form))
-    return f"ser {sername}, sim {simname}"
+    return f"Started a run of driver {driver} on series {sername}, simulation name {simname}"
     # return Response(flask.request.get_json(), mimetype="application/json")
 
 
