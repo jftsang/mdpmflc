@@ -79,6 +79,7 @@ def mainpage():
 
 @app.route("/run", methods=["POST"])
 def run_a_simulation():
+    """Start a simulation."""
     # https://code.luasoftware.com/tutorials/flask/flask-get-request-parameters-get-post-and-json/
     if flask.request.method == "GET":
         raise Exception("Sorry, you should request this page with a POST request")
@@ -114,17 +115,22 @@ def run_a_simulation():
         # raise e(f"{simdir} already exists")
 
     # Start the simulation
-    stdout_f = open("/tmp/mdpmflc.log", "a")
+    stdout_f = open(os.path.join(simdir, f"{simname}.log"), "a")
+    stderr_f = open(os.path.join(simdir, f"{simname}.err"), "a")
     subprocess.run([executable, "-name", simname],
                    cwd=simdir,
-                   stdout=stdout_f
+                   stdout=stdout_f,
+                   stderr=stderr_f
                   )
 
-
-
     # return pformat(dir(flask.request.form))
-    return f"Started a run of driver {driver} on series {sername}, simulation name {simname}"
+    # return f"Started a run of driver {driver} on series {sername}, simulation name {simname}"
     # return Response(flask.request.get_json(), mimetype="application/json")
+    return render_template("successful_start.html",
+            hostname=flask.request.host,
+            driver=driver,
+            sername=sername,
+            simname=simname)
 
 
 @app.route("/driver/<dri>/")
@@ -165,44 +171,57 @@ def show_series(sername):
             sername=sername,
             available_simulations=available_simulations)
 
+def get_max_indices(sername, simname):
+    simdir = os.path.join(DPMDIR, sername, simname)
+    files = os.listdir(simdir)
+    files_parsed = [f.split(".") for f in files]
+    max_data_index = max([int(fp[2]) for fp in files_parsed if fp[1] == "data"])
+    max_fstat_index = max([int(fp[2]) for fp in files_parsed if fp[1] == "fstat"])
+    return files_parsed, max_data_index, max_fstat_index
+
 
 @app.route('/results/<sername>/<simname>/')
 def showsim(sername, simname):
     """Serve a page showing some summary statistics of this simulation,
-    as well as links to more details such as individual files.
+    as well as links to more details such as individual files, and logs.
     """
+    # FIXME at the moment it just goes to the 0th data file
+
     simdir = os.path.join(DPMDIR, sername, simname)
     if not os.path.isdir(simdir):
         # return f"The subdirectory {sername}/{simname} doesn't exist in the directory {DPMDIR}."
         return flask.redirect(f"/results/{sername}")
 
-    files = os.listdir(simdir)
-    files_parsed = [f.split(".") for f in files]
-    max_data_index = max([int(fp[2]) for fp in files_parsed if fp[1] == "data"])
-    max_fstat_index = max([int(fp[2]) for fp in files_parsed if fp[1] == "fstat"])
+    files_parsed, max_data_index, max_fstat_index = get_max_indices(sername, simname)
+
+    # FIXME serve up some useful information
 #    return render_template('simulation.html', sername=sername, simname=simname,
 #            files=files_parsed, mdi=max_data_index, mfi=max_fstat_index)
-    # FIXME at the moment it just goes to the 0th data file
+
     return flask.redirect(f"/results/{sername}/{simname}/0/data")
 
 
 
 @app.route('/results/<sername>/<simname>/<ind>/data/')
 def showdatafile(sername, simname, ind):
+    files_parsed, max_data_index, max_fstat_index = get_max_indices(sername, simname)
     dat_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
     dimensions, headline, time, particles = read_data_file(dat_fn)
+
 
     if dimensions == 2:
         return render_template("results/data2d.html",
                 sername=sername, simname=simname, ind=ind, time=time,
                 dt=get_dt(sername, simname),
-                headline=headline, lines=particles)
+                headline=headline, lines=particles,
+                mdi=max_data_index)
 
     if dimensions == 3:
         return render_template("results/data3d.html",
                 sername=sername, simname=simname, ind=ind, time=time,
                 dt=get_dt(sername, simname),
-                headline=headline, lines=particles)
+                headline=headline, lines=particles,
+                mdi=max_data_index)
 
 
 @app.route('/results/<sername>/<simname>/<ind>/fstat/')
