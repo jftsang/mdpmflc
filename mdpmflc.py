@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Flask web interface for controlling MercuryDPM simulations and viewing their results.
+Flask web interface for controlling MercuryDPM simulations and viewing
+their results.
 
 Preparation:
     pip install Flask
@@ -15,23 +16,22 @@ To run:
 import flask
 from flask import Flask, Response
 from flask import render_template
-app = Flask(__name__)
 
 # https://stackoverflow.com/a/50728936/12695048
 import io
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
+# from matplotlib.figure import Figure
 # https://matplotlib.org/3.2.1/api/animation_api.html
 from matplotlib.animation import FuncAnimation, ImageMagickWriter
 # https://matplotlib.org/gallery/animation/dynamic_image2.html
-import matplotlib.animation as animation
+# import matplotlib.animation as animation
 
-import random
-from math import pi, sqrt
+# import random
+# from math import pi, sqrt
 import numpy as np
 import os
-import fnmatch
+# import fnmatch
 
 
 from read_data_file import read_data_file
@@ -43,7 +43,9 @@ import subprocess
 
 
 # Diagnosis
-from pprint import pprint, pformat
+# from pprint import pprint, pformat
+
+app = Flask(__name__)
 
 DPMDIR = "/media/asclepius/jmft2/MercuryDPM/MercuryBuild/Drivers/Tutorials"
 SRCDIR = "/media/asclepius/jmft2/MercuryDPM/MercurySource/Drivers/Tutorials"
@@ -70,11 +72,10 @@ def get_available_series():
 @app.route('/')
 def mainpage():
     return render_template("mainpage.html",
-            hostname=flask.request.host,
-            DPMDIR=DPMDIR,
-            available_series=get_available_series(),
-            available_drivers=DPMDRIVERS
-    )
+                           hostname=flask.request.host,
+                           DPMDIR=DPMDIR,
+                           available_series=get_available_series(),
+                           available_drivers=DPMDRIVERS)
 
 
 @app.route("/run", methods=["POST"])
@@ -83,7 +84,6 @@ def run_a_simulation():
     # https://code.luasoftware.com/tutorials/flask/flask-get-request-parameters-get-post-and-json/
     if flask.request.method == "GET":
         raise Exception("Sorry, you should request this page with a POST request")
-
 
     if "driver" in flask.request.values:
         driver = flask.request.values.get("driver")
@@ -103,15 +103,14 @@ def run_a_simulation():
     else:
         raise Exception("simname not given")
 
-
     executable = os.path.join(DPMDIR, driver)
     simdir = os.path.join(DPMDIR, sername, simname)
     try:
         os.mkdir(simdir)
     except PermissionError as e:
-        raise e # TODO
+        raise e  # TODO
     except FileExistsError as e:
-        raise e # TODO
+        raise e  # TODO
         # raise e(f"{simdir} already exists")
 
     # Start the simulation
@@ -120,26 +119,24 @@ def run_a_simulation():
     subprocess.run([executable, "-name", simname],
                    cwd=simdir,
                    stdout=stdout_f,
-                   stderr=stderr_f
-                  )
+                   stderr=stderr_f)
 
     # return pformat(dir(flask.request.form))
     # return f"Started a run of driver {driver} on series {sername}, simulation name {simname}"
     # return Response(flask.request.get_json(), mimetype="application/json")
     return render_template("successful_start.html",
-            hostname=flask.request.host,
-            driver=driver,
-            sername=sername,
-            simname=simname)
+                           hostname=flask.request.host,
+                           driver=driver,
+                           sername=sername,
+                           simname=simname)
 
 
 @app.route("/driver/<dri>/")
 def driverpage(dri):
     return render_template("driver.html",
-            hostname=flask.request.host,
-            driver=dri,
-            available_series=get_available_series(),
-    )
+                           hostname=flask.request.host,
+                           driver=dri,
+                           available_series=get_available_series())
 
 
 @app.route("/driver/<dri>/source")
@@ -147,8 +144,8 @@ def driver_source(dri):
     src_fn = os.path.join(SRCDIR, dri + ".cpp")
     src_f = open(src_fn, "r")
     return render_template("driver_src.html",
-            driver=dri,
-            src=src_f.read())
+                           driver=dri,
+                           src=src_f.read())
 
 ### Functions for serving up results
 
@@ -162,14 +159,15 @@ def show_series(sername):
     serdir = os.path.join(DPMDIR, sername)
     if not os.path.isdir(serdir):
         # return f"The series {sername} does not exist."
-        return flask.redirect(f"/results")
+        return flask.redirect("/results")
 
     available_simulations = [d for d in os.listdir(serdir) if os.path.isdir(os.path.join(serdir, d))]
     available_simulations = sorted(available_simulations)
     return render_template('show_series.html',
-            hostname=flask.request.host,
-            sername=sername,
-            available_simulations=available_simulations)
+                           hostname=flask.request.host,
+                           sername=sername,
+                           available_simulations=available_simulations)
+
 
 def get_max_indices(sername, simname):
     simdir = os.path.join(DPMDIR, sername, simname)
@@ -201,27 +199,25 @@ def showsim(sername, simname):
     return flask.redirect(f"/results/{sername}/{simname}/0/data")
 
 
-
 @app.route('/results/<sername>/<simname>/<ind>/data/')
 def showdatafile(sername, simname, ind):
     files_parsed, max_data_index, max_fstat_index = get_max_indices(sername, simname)
     dat_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
     dimensions, headline, time, particles = read_data_file(dat_fn)
 
-
     if dimensions == 2:
         return render_template("results/data2d.html",
-                sername=sername, simname=simname, ind=ind, time=time,
-                dt=get_dt(sername, simname),
-                headline=headline, lines=particles,
-                mdi=max_data_index)
+                               sername=sername, simname=simname, ind=ind, time=time,
+                               dt=get_dt(sername, simname),
+                               headline=headline, lines=particles,
+                               mdi=max_data_index)
 
     if dimensions == 3:
         return render_template("results/data3d.html",
-                sername=sername, simname=simname, ind=ind, time=time,
-                dt=get_dt(sername, simname),
-                headline=headline, lines=particles,
-                mdi=max_data_index)
+                               sername=sername, simname=simname, ind=ind, time=time,
+                               dt=get_dt(sername, simname),
+                               headline=headline, lines=particles,
+                               mdi=max_data_index)
 
 
 @app.route('/results/<sername>/<simname>/<ind>/fstat/')
@@ -265,15 +261,15 @@ def showdataplot(sername, simname, ind):
 
     if dimensions == 2:
         return render_template("results/data2d_plot.html",
-                sername=sername, simname=simname, ind=ind, time=time,
-                dt=get_dt(sername, simname),
-                headline=headline, lines=particles)
+                               sername=sername, simname=simname, ind=ind, time=time,
+                               dt=get_dt(sername, simname),
+                               headline=headline, lines=particles)
 
     if dimensions == 3:
         return render_template("results/data3d_plot.html",
-                sername=sername, simname=simname, ind=ind, time=time,
-                dt=get_dt(sername, simname),
-                headline=headline, lines=particles)
+                               sername=sername, simname=simname, ind=ind, time=time,
+                               dt=get_dt(sername, simname),
+                               headline=headline, lines=particles)
 
 
 @app.route("/results/<sername>/<simname>/<ind>/plot/png")
@@ -284,8 +280,6 @@ def showdataplot_png(sername, simname, ind):
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
-
-
 
 
 @app.route('/style.css')
@@ -318,4 +312,3 @@ def anim():
     ani.save("static/anim.mp4")
 
     return flask.url_for("static", filename="anim.mp4")
-
