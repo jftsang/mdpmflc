@@ -1,7 +1,8 @@
 # mdpmflc - a web interface for MercuryDPM
 
-[MercuryDPM](www.mercurydpm.org) is an excellent open-source package for
-conducting discrete particle model simulations of granular materials.
+[MercuryDPM](https://www.mercurydpm.org) is an excellent open-source
+package for conducting discrete particle model simulations of granular
+materials.
 
 **mdpmflc** offers a web interface for starting MercuryDPM simulations,
 controlling their execution, as well as producing graphic visualisations
@@ -24,7 +25,7 @@ This work is licensed under a Creative Commons
 Attribution-NonCommercial-ShareAlike 4.0 International License
 (CC-BY-NC-SA-4.0).
 
-![CC-BY-NC-SA-4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+![CC-BY-NC-SA-4.0](https://licensebuttons.net/l/by-nc-sa/4.0/88x31.png)
 
 
 ## Credits
