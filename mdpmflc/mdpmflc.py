@@ -46,18 +46,12 @@ from . import app
 from .utils.read_data_file import read_data_file
 from .utils.graphics import create_data_figure
 from .utils.get_dt import get_dt
+from .utils.get_available_series import get_available_series
 
 # Controllers
 from .controller.servePlots import *
 from .controller.serveRawResults import *
-
-
-def get_available_series():
-    available_series = os.listdir(DPMDIR)
-    available_series = [d for d in available_series if os.path.isdir(os.path.join(DPMDIR, d))]
-    available_series = [d for d in available_series if d != "CMakeFiles"]
-    available_series = sorted(available_series)
-    return available_series
+from .controller.driver.viewDriver import *
 
 
 @app.route('/')
@@ -121,22 +115,6 @@ def run_a_simulation():
                            sername=sername,
                            simname=simname)
 
-
-@app.route("/driver/<dri>/")
-def driverpage(dri):
-    return render_template("driver.html",
-                           hostname=flask.request.host,
-                           driver=dri,
-                           available_series=get_available_series())
-
-
-@app.route("/driver/<dri>/source")
-def driver_source(dri):
-    src_fn = os.path.join(SRCDIR, dri + ".cpp")
-    src_f = open(src_fn, "r")
-    return render_template("driver_src.html",
-                           driver=dri,
-                           src=src_f.read())
 
 ### Functions for serving up results
 
