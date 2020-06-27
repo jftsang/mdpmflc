@@ -11,6 +11,16 @@ of their output.
 It uses the [Flask](https://flask.palletsprojects.com/) framework.
 
 
+## Installation and startup
+
+`git clone https://github.com/jftsang/mdpmflc.git && cd mdpmflc && pip install [-e] .`
+
+Edit the variables in `config.py` to point to your installation of
+MercuryDPM.
+
+Then `./start.sh`. Finally point your browser to `localhost:5000`.
+
+
 ## Maintainer and website
 
 The author and maintainer is J. M. F. Tsang (`j.m.f.tsang@cantab.net`). 
@@ -18,6 +28,7 @@ The author and maintainer is J. M. F. Tsang (`j.m.f.tsang@cantab.net`).
 The project is maintained [on GitHub](https://github.com/jftsang/mdpmflc).
 
 There currently isn't any 'demo' website on the WWW, sorry.
+
 
 ## Licensing
 
