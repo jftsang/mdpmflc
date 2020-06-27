@@ -12,7 +12,6 @@ To run:
     export FLASK_ENV='development'
     flask run --host=0.0.0.0 --debugger
 """
-
 import flask
 from flask import Flask, Response
 from flask import render_template
@@ -33,32 +32,24 @@ import numpy as np
 import os
 # import fnmatch
 
-
-from read_data_file import read_data_file
-from graphics import create_data_figure
-
-
 # For starting new simulations
 import subprocess
-
 
 # Diagnosis
 # from pprint import pprint, pformat
 
-app = Flask(__name__)
+# Configuration
+from . import DPMDIR, SRCDIR, DPMDRIVERS
+from . import app
 
-DPMDIR = "/media/asclepius/jmft2/MercuryDPM/MercuryBuild/Drivers/Tutorials"
-SRCDIR = "/media/asclepius/jmft2/MercuryDPM/MercurySource/Drivers/Tutorials"
-DPMDRIVERS = ["Tutorial9"]
+# Utilities
+from .utils.read_data_file import read_data_file
+from .utils.graphics import create_data_figure
+from .utils.get_dt import get_dt
 
-def get_dt(sername, simname):
-    """Get the timestep of a simulation (assuming that this doesn't
-    change during a simulation).
-    """
-    data_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.1")
-    data_f = open(data_fn, "r")
-    headline = data_f.readline().split(' ')
-    return float(headline[1])
+# Controllers
+from .controller.servePlots import *
+from .controller.serveRawResults import *
 
 
 def get_available_series():
@@ -149,6 +140,7 @@ def driver_source(dri):
 
 ### Functions for serving up results
 
+
 @app.route('/results/')
 def redirect_to_main(sername=None):
     return flask.redirect('/')
@@ -225,68 +217,6 @@ def showfstatfile(sername, simname, ind):
     return ""
 
 
-### Functions for serving raw files
-
-@app.route('/results/<sername>/<simname>/<ind>/data/raw')
-def serve_data_raw(sername, simname, ind):
-    """Serve a raw .data. file."""
-    dat_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
-    dat_f = open(dat_fn, "r")
-    return Response(dat_f.read(), mimetype="text/plain")
-
-
-@app.route('/results/<sername>/<simname>/<ind>/fstat/raw')
-def serve_fstat_raw(sername, simname, ind):
-    """Serve a raw .fstat. file."""
-    fstat_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.fstat.{ind}")
-    fstat_f = open(fstat_fn, "r")
-    return Response(fstat_f.read(), mimetype="text/plain")
-
-
-@app.route('/results/<sername>/<simname>/<ind>/restart/raw')
-def serve_restart_raw(sername, simname, ind):
-    """Serve a raw .restart. file."""
-    restart_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.restart.{ind}")
-    restart_f = open(restart_fn, "r")
-    return Response(restart_f.read(), mimetype="text/plain")
-
-
-### Functions for plots
-
-@app.route('/results/<sername>/<simname>/<ind>/')
-@app.route("/results/<sername>/<simname>/<ind>/plot/")
-def showdataplot(sername, simname, ind):
-    dat_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
-    dimensions, headline, time, particles = read_data_file(dat_fn)
-
-    if dimensions == 2:
-        return render_template("results/data2d_plot.html",
-                               sername=sername, simname=simname, ind=ind, time=time,
-                               dt=get_dt(sername, simname),
-                               headline=headline, lines=particles)
-
-    if dimensions == 3:
-        return render_template("results/data3d_plot.html",
-                               sername=sername, simname=simname, ind=ind, time=time,
-                               dt=get_dt(sername, simname),
-                               headline=headline, lines=particles)
-
-
-@app.route("/results/<sername>/<simname>/<ind>/plot/png")
-def showdataplot_png(sername, simname, ind):
-    data_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
-
-    fig = create_data_figure(data_fn, vels=get_dt(sername, simname))
-    output = io.BytesIO()
-    FigureCanvas(fig).print_png(output)
-    return Response(output.getvalue(), mimetype='image/png')
-
-
-@app.route('/style.css')
-def stylesheet():
-    return flask.url_for("static", filename="style.css", mimetype="text/css")
-
-
 ### Miscellaneous
 
 @app.route("/anim")
@@ -312,3 +242,8 @@ def anim():
     ani.save("static/anim.mp4")
 
     return flask.url_for("static", filename="anim.mp4")
+
+
+@app.route('/style.css')
+def stylesheet():
+    return flask.url_for("static", filename="style.css", mimetype="text/css")

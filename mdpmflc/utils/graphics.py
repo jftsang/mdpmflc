@@ -8,7 +8,7 @@ from matplotlib.animation import FuncAnimation, ImageMagickWriter
 # https://matplotlib.org/gallery/animation/dynamic_image2.html
 import matplotlib.animation as animation
 
-from read_data_file import read_data_file
+from mdpmflc.utils.read_data_file import read_data_file
 
 
 def create_data_figure(data_fn, vels=0.1, samplesize=None):

@@ -1,5 +1,6 @@
 /venv/
 __pycache__
+mdpmflc.egg-info
 
 flask.log
 flask.err
