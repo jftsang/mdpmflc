@@ -9,6 +9,7 @@ from matplotlib.animation import FuncAnimation, ImageMagickWriter
 import matplotlib.animation as animation
 
 from mdpmflc.utils.read_data_file import read_data_file
+from mdpmflc.utils.read_ene_file import read_ene_file
 
 
 def create_data_figure(data_fn, vels=0.1, samplesize=None):
@@ -65,3 +66,18 @@ def create_data_figure(data_fn, vels=0.1, samplesize=None):
 #def lagrangian_trace(sername, simname):
 #    dat_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
 #    dimensions, headline, time, particles = read_data_file(dat_fn)
+
+
+def create_ene_figure(ene_fn):
+    """Plot the information in an .ene file."""
+    ts, gpes, kes = read_ene_file(ene_fn)
+
+    fig = Figure(figsize=(14, 6))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.plot(ts, gpes, 'ko--',
+            ts, kes, 'rx-')
+    ax.set_xlabel('time')
+    ax.set_ylabel('energy')
+    ax.grid()
+
+    return fig
