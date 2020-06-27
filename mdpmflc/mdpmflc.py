@@ -17,9 +17,7 @@ from flask import Flask, Response
 from flask import render_template
 
 # https://stackoverflow.com/a/50728936/12695048
-import io
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 # from matplotlib.figure import Figure
 # https://matplotlib.org/3.2.1/api/animation_api.html
 from matplotlib.animation import FuncAnimation, ImageMagickWriter

@@ -1,10 +1,13 @@
 """Endpoints that serve plots, or webpages that contain plots."""
+import io
 import os
 
 from flask import Response, render_template
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 from mdpmflc import DPMDIR, app
 from mdpmflc.utils.get_dt import get_dt
+from mdpmflc.utils.graphics import create_data_figure
 from mdpmflc.utils.read_data_file import read_data_file
 
 
