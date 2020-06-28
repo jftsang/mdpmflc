@@ -55,3 +55,27 @@ def showdatafile(sername, simname, ind):
 @app.route('/results/<sername>/<simname>/<ind>/fstat/')
 def showfstatfile(sername, simname, ind):
     return ""
+
+
+@app.route('/results/<sername>/<simname>/<ind>/')
+@app.route("/results/<sername>/<simname>/<ind>/plot/")
+def showdataplot(sername, simname, ind):
+    """A page that contains a .data file's plot."""
+    dat_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
+    dimensions, headline, time, particles = read_data_file(dat_fn)
+
+    files_parsed, max_data_index, max_fstat_index = get_max_indices(sername, simname)
+
+    if dimensions == 2:
+        return render_template("results/data2d_plot.html",
+                               sername=sername, simname=simname, ind=ind, time=time,
+                               dt=get_dt(sername, simname),
+                               headline=headline, lines=particles,
+                               mdi=max_data_index)
+
+    if dimensions == 3:
+        return render_template("results/data3d_plot.html",
+                               sername=sername, simname=simname, ind=ind, time=time,
+                               dt=get_dt(sername, simname),
+                               headline=headline, lines=particles,
+                               mdi=max_data_index)
