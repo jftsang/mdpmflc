@@ -4,6 +4,7 @@ import flask
 from flask import render_template
 
 from mdpmflc import DPMDIR, app
+from mdpmflc.errorHandlers import SeriesNotFoundError
 from mdpmflc.utils.listings import get_available_simulations
 
 
@@ -16,8 +17,7 @@ def redirect_to_main(sername=None):
 def show_series(sername):
     available_simulations = get_available_simulations(sername)
     if available_simulations is None:
-        # return f"The series {sername} does not exist."
-        return flask.redirect("/results")
+        raise SeriesNotFoundError(sername)
 
     return render_template('show_series.html',
                            hostname=flask.request.host,
