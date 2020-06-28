@@ -53,6 +53,9 @@ from .controller.results.listing import *
 from .controller.results.plots import *
 from .controller.results.raw import *
 
+# Error handlers
+from .errorhandlers import not_found
+
 
 @app.route("/run", methods=["POST"])
 def run_a_simulation():
@@ -107,11 +110,6 @@ def run_a_simulation():
                            simname=simname)
 
 
-### Functions for serving up results
-
-
-### Miscellaneous
-
 @app.route("/anim")
 def anim():
 
@@ -136,6 +134,8 @@ def anim():
 
     return flask.url_for("static", filename="anim.mp4")
 
+
+### Miscellaneous
 
 @app.route('/')
 def mainpage():
