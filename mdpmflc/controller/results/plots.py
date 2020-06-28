@@ -6,7 +6,7 @@ from flask import Response, render_template
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 from mdpmflc import DPMDIR, app
-from mdpmflc.utils.get_dt import get_dt
+from mdpmflc.utils.simulation import get_dt
 from mdpmflc.utils.graphics import create_data_figure, create_ene_figure
 from mdpmflc.utils.read_data_file import read_data_file
 
@@ -36,7 +36,7 @@ def showdataplot_png(sername, simname, ind):
     """A plot of a .data file, in PNG format."""
     data_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
 
-    fig = create_data_figure(data_fn, vels=get_dt(sername, simname), samplesize=None)
+    fig = create_data_figure(data_fn, vels=get_dt(sername, simname), samplesize=10000)
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')

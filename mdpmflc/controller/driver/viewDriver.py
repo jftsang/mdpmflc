@@ -3,7 +3,7 @@ import flask
 from flask import Response, render_template
 
 from mdpmflc import SRCDIR, app
-from mdpmflc.utils.get_available_series import get_available_series
+from mdpmflc.utils.listings import get_available_series
 
 
 @app.route("/driver/<dri>/")
