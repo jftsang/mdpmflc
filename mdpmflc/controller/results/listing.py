@@ -1,6 +1,5 @@
-"""Show listings of series and simulations.
+"""Pages that show listings of series and simulations.
 """
-import os
 import flask
 from flask import render_template
 
