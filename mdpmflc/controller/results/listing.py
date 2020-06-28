@@ -4,7 +4,7 @@ import os
 import flask
 from flask import render_template
 
-from mdpmflc import DPMDIR, app
+from mdpmflc import DPMDIR, app, mflog
 from mdpmflc.utils.listings import get_available_simulations
 
 

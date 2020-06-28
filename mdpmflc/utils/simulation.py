@@ -1,6 +1,6 @@
 """Tools for getting information about a simulation."""
 import os
-from mdpmflc import DPMDIR
+from mdpmflc import DPMDIR, mflog
 
 
 def get_dt(sername, simname):
