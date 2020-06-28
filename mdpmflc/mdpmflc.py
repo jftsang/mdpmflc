@@ -222,4 +222,9 @@ def anim():
 
 @app.route('/style.css')
 def stylesheet():
-    return flask.url_for("static", filename="style.css", mimetype="text/css")
+    return app.send_static_file("style.css")
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file("favicon.ico")
