@@ -43,22 +43,15 @@ from . import app
 # Utilities
 from .utils.read_data_file import read_data_file
 from .utils.graphics import create_data_figure
-from .utils.get_dt import get_dt
-from .utils.get_available_series import get_available_series
+from .utils.simulation import get_dt, get_max_indices
+from .utils.listings import get_available_series
 
 # Controllers
-from .controller.servePlots import *
-from .controller.serveRawResults import *
 from .controller.driver.viewDriver import *
-
-
-@app.route('/')
-def mainpage():
-    return render_template("mainpage.html",
-                           hostname=flask.request.host,
-                           DPMDIR=DPMDIR,
-                           available_series=get_available_series(),
-                           available_drivers=DPMDRIVERS)
+from .controller.results.simulation import *
+from .controller.results.listing import *
+from .controller.results.plots import *
+from .controller.results.raw import *
 
 
 @app.route("/run", methods=["POST"])
@@ -117,82 +110,6 @@ def run_a_simulation():
 ### Functions for serving up results
 
 
-@app.route('/results/')
-def redirect_to_main(sername=None):
-    return flask.redirect('/')
-
-
-@app.route('/results/<sername>/')
-def show_series(sername):
-    serdir = os.path.join(DPMDIR, sername)
-    if not os.path.isdir(serdir):
-        # return f"The series {sername} does not exist."
-        return flask.redirect("/results")
-
-    available_simulations = [d for d in os.listdir(serdir) if os.path.isdir(os.path.join(serdir, d))]
-    available_simulations = sorted(available_simulations)
-    return render_template('show_series.html',
-                           hostname=flask.request.host,
-                           sername=sername,
-                           available_simulations=available_simulations)
-
-
-def get_max_indices(sername, simname):
-    simdir = os.path.join(DPMDIR, sername, simname)
-    files = os.listdir(simdir)
-    files_parsed = [f.split(".") for f in files]
-    max_data_index = max([int(fp[2]) for fp in files_parsed if fp[1] == "data"])
-    max_fstat_index = max([int(fp[2]) for fp in files_parsed if fp[1] == "fstat"])
-    return files_parsed, max_data_index, max_fstat_index
-
-
-@app.route('/results/<sername>/<simname>/')
-def showsim(sername, simname):
-    """Serve a page showing some summary statistics of this simulation,
-    as well as links to more details such as individual files, and logs.
-    """
-    # FIXME at the moment it just goes to the 0th data file
-
-    simdir = os.path.join(DPMDIR, sername, simname)
-    if not os.path.isdir(simdir):
-        # return f"The subdirectory {sername}/{simname} doesn't exist in the directory {DPMDIR}."
-        return flask.redirect(f"/results/{sername}")
-
-    files_parsed, max_data_index, max_fstat_index = get_max_indices(sername, simname)
-
-    # FIXME serve up some useful information
-#    return render_template('simulation.html', sername=sername, simname=simname,
-#            files=files_parsed, mdi=max_data_index, mfi=max_fstat_index)
-
-    return flask.redirect(f"/results/{sername}/{simname}/0/data")
-
-
-@app.route('/results/<sername>/<simname>/<ind>/data/')
-def showdatafile(sername, simname, ind):
-    files_parsed, max_data_index, max_fstat_index = get_max_indices(sername, simname)
-    dat_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
-    dimensions, headline, time, particles = read_data_file(dat_fn)
-
-    if dimensions == 2:
-        return render_template("results/data2d.html",
-                               sername=sername, simname=simname, ind=ind, time=time,
-                               dt=get_dt(sername, simname),
-                               headline=headline, lines=particles,
-                               mdi=max_data_index)
-
-    if dimensions == 3:
-        return render_template("results/data3d.html",
-                               sername=sername, simname=simname, ind=ind, time=time,
-                               dt=get_dt(sername, simname),
-                               headline=headline, lines=particles,
-                               mdi=max_data_index)
-
-
-@app.route('/results/<sername>/<simname>/<ind>/fstat/')
-def showfstatfile(sername, simname, ind):
-    return ""
-
-
 ### Miscellaneous
 
 @app.route("/anim")
@@ -218,6 +135,15 @@ def anim():
     ani.save("static/anim.mp4")
 
     return flask.url_for("static", filename="anim.mp4")
+
+
+@app.route('/')
+def mainpage():
+    return render_template("mainpage.html",
+                           hostname=flask.request.host,
+                           DPMDIR=DPMDIR,
+                           available_series=get_available_series(),
+                           available_drivers=DPMDRIVERS)
 
 
 @app.route('/style.css')
