@@ -34,4 +34,4 @@ import mdpmflc.controller.results.plots
 import mdpmflc.controller.results.raw
 
 # Error handlers
-import mdpmflc.errorHandlers
+import mdpmflc.errorhandlers

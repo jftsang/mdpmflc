@@ -6,7 +6,7 @@ import flask
 from flask import render_template
 
 from mdpmflc import DPMDIR, app
-from mdpmflc.errorHandlers import SimulationNotFoundError
+from mdpmflc.errorhandlers import SimulationNotFoundError
 from mdpmflc.utils.simulation import get_simstatus, get_max_indices
 from mdpmflc.utils.read_data_file import read_data_file
 from mdpmflc.utils.read_restart_file import read_restart_file

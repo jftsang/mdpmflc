@@ -4,7 +4,7 @@ import flask
 from flask import render_template
 
 from mdpmflc import DPMDIR, app
-from mdpmflc.errorHandlers import SeriesNotFoundError
+from mdpmflc.errorhandlers import SeriesNotFoundError
 from mdpmflc.utils.listings import get_available_simulations
 
 
