@@ -26,7 +26,7 @@ def showdataplot_png(sername, simname, ind):
     """A plot of a .data file, in PNG format."""
     data_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
 
-    fig = create_data_figure(data_fn, vels=get_dt(sername, simname), samplesize=None)
+    fig = create_data_figure(data_fn, vels=None, samplesize=None)
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')

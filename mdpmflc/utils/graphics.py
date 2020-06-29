@@ -12,7 +12,7 @@ from mdpmflc.utils.read_data_file import read_data_file
 from mdpmflc.utils.read_ene_file import read_ene_file
 
 
-def create_data_figure(data_fn, vels=0.1, samplesize=None):
+def create_data_figure(data_fn, vels=None, samplesize=None):
     """Plots the data from a .data file."""
     fig = Figure(figsize=(14, 6))
     ax = fig.add_subplot(1, 1, 1)
@@ -35,7 +35,8 @@ def create_data_figure(data_fn, vels=0.1, samplesize=None):
         sps = [p[13] for p in particles]
 
     # ax.scatter(xs, ys, marker='.', s=1, c=sps)
-    ax.scatter(xs, ys, marker='o', c=sps)
+    # ax.scatter(xs, ys, marker='o', s=rs, c=sps, cmap='hsv')
+    ax.scatter(xs, ys, marker='.', s=rs, c=sps)
     # https://stackoverflow.com/questions/33094509/correct-sizing-of-markers-in-scatter-plot-to-a-radius-r-in-matplotlib#33095224
     # https://stackoverflow.com/questions/14827650/pyplot-scatter-plot-marker-size#14860958
     # ax.scatter(xs, ys, s=[sqrt(r) for r in rs])
@@ -48,8 +49,8 @@ def create_data_figure(data_fn, vels=0.1, samplesize=None):
             us = [p[3] for p in particles]
             vs = [p[4] for p in particles]
 
-    for i in range(len(xs)):
-        ax.arrow(xs[i], ys[i], us[i] * vels, vs[i] * vels)
+        for i in range(len(xs)):
+            ax.arrow(xs[i], ys[i], us[i] * vels, vs[i] * vels)
 
     if dimensions == 2:
         ax.set_xlim((headline[2], headline[4]))
