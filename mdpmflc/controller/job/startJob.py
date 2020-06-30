@@ -34,6 +34,8 @@ def run_a_simulation():
         simname = flask.request.values.get("simname")
         if not simname:  # empty string
             raise ValueError("simname should not be empty")
+        if not simname.isidentifier():
+            raise ValueError(f"{simname} is an illegal name (fails isidentifier())")
     else:
         raise Exception("simname not given")
 
