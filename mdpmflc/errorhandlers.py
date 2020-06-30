@@ -10,6 +10,14 @@ class SimulationNotFoundError(Exception):
     pass
 
 
+class SimulationAlreadyExistsError(Exception):
+    pass
+
+
+class IllegalSimulationNameError(Exception):
+    pass
+
+
 @app.errorhandler(404)
 def not_found(error):
     return render_template('errors/404.html'), 404
@@ -22,7 +30,14 @@ def series_not_found(error):
 
 @app.errorhandler(SimulationNotFoundError)
 def simulation_not_found(error):
-    print(dir(error))
     return render_template('errors/simulationnotfound.html',
                            sername=error.args[0],
                            simname=error.args[1]), 404
+
+
+@app.errorhandler(SimulationAlreadyExistsError)
+def simulation_already_exists(error):
+    return render_template('errors/simulationalreadyexists.html',
+                           sername=error.args[0],
+                           simname=error.args[1],
+                           driver=error.args[2]), 409

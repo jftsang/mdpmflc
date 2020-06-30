@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 # Configuration
-from . import app
+from mdpmflc import app
 
 # Utilities
 
 # Controllers
 import mdpmflc.controller.miscPages
 import mdpmflc.controller.driver.viewDriver
-import mdpmflc.controller.job.startJob
+import mdpmflc.controller.job.start_job
 import mdpmflc.controller.results.simulation
 import mdpmflc.controller.results.listing
 import mdpmflc.controller.results.plots
