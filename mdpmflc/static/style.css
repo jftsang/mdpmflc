@@ -1,4 +1,4 @@
-/* stolen from https://www.w3schools.com/html/html_tables.asp */
+/* Pretty tables stolen from https://www.w3schools.com/html/html_tables.asp */
 table {
     font-family: arial, sans-serif;
     border-collapse: collapse;
@@ -57,9 +57,18 @@ tr:nth-child(even) {
     padding: 6px 6px;
 }
 
-.codelisting
+div.codelisting
 {
+    border-radius: 10px;
     border-left: 3em;
     border: 1px gray dotted;
     background-color: beige;
+    width: 60em;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+pre.collapsible
+{
+    display: none;
 }
