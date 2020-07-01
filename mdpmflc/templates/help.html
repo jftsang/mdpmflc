@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+    <title>mdpmflc help</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+</head>
+
+<body>
+
+<h1>mdpmflc help</h1>
+
+<p>You may wish to first read the <a href="http://docs.mercurydpm.org/Release/">MercuryDPM documentation</a>.</p>
+
+<h2>Writing a driver</h2>
+
+<p>mdpmflc makes certain assumptions about your driver:
+<ul>
+    <li>It takes in arguments through a parameters file, which is
+        specified as the first command line argument. The parameter file
+        should have the <tt>.config</tt> extension.</li>
+    <li>The parameter file consists of a set of lines, each of which is
+        a key-value pair, where the values are floats. (They can be
+        converted into other forms by the driver, but mdpmflc takes no
+        responsibility for those.)</li>
+    <li>Your driver sets the name of your simulation to be of the same
+        base name as your parameter file (<i>i.e.</i> without the
+        <tt>.config</tt> extension).</li>
+    <li>Your driver must save its <tt>.data.</tt> and <tt>.fstat.</tt>
+        files as multiple files (using
+        <tt>setFileType(FileType::MULTIPLE_FILES).</tt>
+</ul>
+</p>
+
+<p> The following example demonstrates this. Save it as
+<tt>MdpmflcTutorial.cpp</tt> and build.</p>
+
+<script src="/static/js/showhidecode.js"></script>
+<div class="codelisting">
+    <button onclick="showHideCode('codelisting_text')">Show/hide code</button>
+<pre id="codelisting_text" class="collapsible">
+{{ example_driver_src }}
+</pre>
+</div>
+
+<p>Then create a configuration file, <tt>example.config</tt>: </p>
+
+<div class="codelisting">
+    <button onclick="showHideCode('exampleconfig')">Show/hide</button>
+<pre id="exampleconfig" class="collapsible">
+{{example_config}}
+</pre>
+</div>
+
+<p>
+    <a href="/">Back to main page.</a>
+</p>
+
+</body>
+</html>

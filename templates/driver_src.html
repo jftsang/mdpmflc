@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Source code for driver {{ driver }}</title>
+        <link rel="stylesheet" type="text/css" href="/static/style.css">
+    </head>
+
+<body>
+
+<h1>Source code for driver {{ driver }}</h1>
+
+<a href=".">back</a>
+<a href="source/raw">raw</a>
+
+<script src="/static/js/showhidecode.js"></script>
+<div class="codelisting">
+    <button onclick="showHideCode('codelisting_text')">Show/hide code</button>
+    <pre id="codelisting_text" class="collapsible">
+{{ src }}
+    </pre>
+</div>
+
+<p>
+    <a href="/">Back to main page.</a>
+</p>
+
+</body>
+</html>
