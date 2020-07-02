@@ -10,9 +10,9 @@
 
 <a href="source">source</a>
 
-<h2>series</h2>
+<h2>Start a new simulation</h2>
 
-<form action="/run" method="post">
+<form action="/run" method="post" enctype="multipart/form-data">
     Driver name is <input type="input" name="driver" value={{driver}} readonly/>
     <br/>
     Series name
@@ -24,9 +24,14 @@
     <br/>
     Simulation name <input type="input" name="simname" value=""/>
     <br/>
-    <input type="submit" value="Run"/>
+    Configuration file <input type="file" name="configfile"/>
+    <br/>
+    <input type="submit" value="Run job"/>
 </form>
 
+<p>
+    <a href="/">Back to main page.</a>
+</p>
 
 </body>
 </html>
