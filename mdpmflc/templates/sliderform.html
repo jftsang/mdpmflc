@@ -11,6 +11,7 @@
         <input id="plotbutton" type="button" value="plot" width="40%"/>
         <br/>
         <input id="data_page" type="button" value="data"/>
+        <input id="ene_page" type="button" value="ene"/>
         <input id="fstat_page" type="button" value="fstat"/>
         <br/>
         <input id="data_raw" type="button" value="raw .data"/>
@@ -46,6 +47,12 @@
         document.getElementById("data_page").onclick = function()
         {
             formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/data');
+            formlf.submit();
+        }
+
+        document.getElementById("ene_page").onclick = function()
+        {
+            formlf.action = '/results/{{sername}}/{{simname}}/plotene';
             formlf.submit();
         }
 

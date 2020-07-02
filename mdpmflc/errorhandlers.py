@@ -1,5 +1,9 @@
 from mdpmflc import app
-from flask import render_template
+from flask import Response, render_template
+
+
+class DriverNotFoundError(Exception):
+    pass
 
 
 class SeriesNotFoundError(Exception):
@@ -18,9 +22,9 @@ class IllegalSimulationNameError(Exception):
     pass
 
 
-@app.errorhandler(404)
-def not_found(error):
-    return render_template('errors/404.html'), 404
+@app.errorhandler(DriverNotFoundError)
+def driver_not_found(error):
+    return render_template('errors/drivernotfound.html', driver=str(error)), 500
 
 
 @app.errorhandler(SeriesNotFoundError)
@@ -41,3 +45,9 @@ def simulation_already_exists(error):
                            sername=error.args[0],
                            simname=error.args[1],
                            driver=error.args[2]), 409
+
+
+@app.errorhandler(404)
+def not_found(error):
+    """Catch-all 404 when a more appropriate error can't be given."""
+    return render_template('errors/404.html'), 404
