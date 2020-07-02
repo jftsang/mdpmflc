@@ -9,5 +9,6 @@ setup(name='mdpmflc',
       url='https://www.github.com/jftsang/mdpmflc/',
       packages=find_packages(),
       install_requires=['Flask>=1.1.2',
-                        'matplotlib>=3.2.0']
+                        'matplotlib>=3.2.0',
+                        'Flask-sqlalchemy>=2.4.3']
  )
