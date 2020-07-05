@@ -1,3 +1,4 @@
+from math import sqrt
 import random
 
 import matplotlib.pyplot as plt
@@ -12,8 +13,14 @@ from mdpmflc.utils.read_data_file import read_data_file
 from mdpmflc.utils.read_ene_file import read_ene_file
 
 
-def create_data_figure(data_fn, vels=None, samplesize=None):
-    """Plots the data from a .data file."""
+def create_data_figure(data_fn, vels=None, samplesize=50000):
+    """Plots the data from a .data file. Returns the figure as a
+    plt.Figure object.
+
+    If samplesize is given, it specifies the number of points to be
+    plotted. If it is None, or if it is smaller than the number of
+    particles, then all particles are plotted.
+    """
     fig = Figure(figsize=(14, 6))
     ax = fig.add_subplot(1, 1, 1)
 
@@ -28,18 +35,18 @@ def create_data_figure(data_fn, vels=None, samplesize=None):
     xs = [p[0] for p in particles]
     ys = [p[1] for p in particles]
     if dimensions == 2:
-        rs = [p[5] for p in particles]
-        sps = [p[8] for p in particles]
+        rs = [p[4] for p in particles]
+        sps = [p[7] for p in particles]
     if dimensions == 3:
-        rs = [p[7] for p in particles]
+        rs = [p[6] for p in particles]
         sps = [p[13] for p in particles]
 
     # ax.scatter(xs, ys, marker='.', s=1, c=sps)
     # ax.scatter(xs, ys, marker='o', s=rs, c=sps, cmap='hsv')
-    ax.scatter(xs, ys, marker='.', s=rs, c=sps)
+    # ax.scatter(xs, ys, marker='.', s=rs, c=sps)
     # https://stackoverflow.com/questions/33094509/correct-sizing-of-markers-in-scatter-plot-to-a-radius-r-in-matplotlib#33095224
     # https://stackoverflow.com/questions/14827650/pyplot-scatter-plot-marker-size#14860958
-    # ax.scatter(xs, ys, s=[sqrt(r) for r in rs])
+    ax.scatter(xs, ys, s=[sqrt(r) for r in rs], c=sps)
 
     if vels:
         if dimensions == 2:

@@ -1,8 +1,8 @@
 """Endpoints that serve plots, as PNG files."""
-import io
 import logging
 import os
-import numpy as np
+
+import moviepy.editor as mp
 
 import flask
 from flask import Response
@@ -18,8 +18,9 @@ from matplotlib.animation import FuncAnimation, ImageMagickWriter
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 from mdpmflc import DPMDIR, CACHEDIR, app
-from mdpmflc.utils.simulation import get_dt
+from mdpmflc.utils.simulation import get_max_indices
 from mdpmflc.utils.graphics import create_data_figure, create_ene_figure
+from mdpmflc.utils.anims import create_animation
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -72,27 +73,31 @@ def showeneplot_png(sername, simname):
         return Response(eneplot_f.read(), mimetype='image/png')
 
 
-@app.route("/anim")
-def anim():
+@app.route("/results/<sername>/<simname>/animate")
+def anim(sername, simname):
+    # https://github.com/matplotlib/matplotlib/issues/16965
+    anim_fn = os.path.join(CACHEDIR, "graphics", sername, simname, f"{simname}.gif")
+    os.makedirs(os.path.dirname(anim_fn), exist_ok=True)
+    base_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data")
 
-    fig, ax = plt.subplots()
-    xdata, ydata = [], []
-    ln, = plt.plot([], [], 'ro')
+    if flask.request.values.get("maxind"):
+        max_data_index = int(flask.request.values.get("maxind"))
+    else:
+        _, max_data_index, _ = get_max_indices(sername, simname)
 
-    def init():
-        ax.set_xlim(0, 2*np.pi)
-        ax.set_ylim(-1, 1)
-        return ln,
+    datafiles = [f"{base_fn}.{ind}" for ind in range(max_data_index)]
+    print(datafiles)
+    if (flask.request.values.get("nocache")
+        or need_to_regenerate(anim_fn, datafiles)):
+        ani = create_animation(sername, simname, maxframes=max_data_index, samplesize=3000)
+        ani.save(anim_fn, writer="imagemagick")
+        # ani.save(anim_fn, writer="ffmpeg")
 
-    def update(frame):
-        xdata.append(frame)
-        ydata.append(np.sin(frame))
-        ln.set_data(xdata, ydata)
-        return ln,
+    clip = mp.VideoFileClip(anim_fn)
 
-    ani = FuncAnimation(fig, update, frames=np.linspace(0, 2*np.pi, 128),
-                        init_func=init, blit=True)
-    # ani.save(os.path.join(CACHEDIR, "graphics", "anim.mp4")
-    ani.save("static/anim.mp4")
+    webm_fn = f"{anim_fn}.webm"
+    clip.write_videofile(webm_fn)
 
-    return flask.url_for("static", filename="anim.mp4")
+    with open(webm_fn, "rb") as anim_f:
+        # return Response(anim_f.read(), mimetype="image/gif")
+        return Response(anim_f.read(), mimetype="video/webm")
