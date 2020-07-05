@@ -8,7 +8,9 @@
 
 <h1>Driver {{driver}} on server <a href="/">{{hostname}}</a></h1>
 
-<a href="source">source</a>
+<h2>Sources and examples</h2>
+
+<p><a href="source">source</a></p>
 
 <h2>Start a new simulation</h2>
 
@@ -17,6 +19,7 @@
     <br/>
     Series name
     <select name="sername">
+        <option></option>
         {% for s in available_series %}
             <option value="{{s}}">{{s}}</option>
         {% endfor %}

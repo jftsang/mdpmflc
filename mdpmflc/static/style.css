@@ -68,7 +68,7 @@ div.codelisting
     padding-right: 1em;
 }
 
-pre.collapsible
+.collapsible
 {
     display: none;
 }

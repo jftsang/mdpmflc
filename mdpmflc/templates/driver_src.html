@@ -10,15 +10,34 @@
 <h1>Source code for driver {{ driver }}</h1>
 
 <a href=".">back</a>
-<a href="source/raw">raw</a>
 
+<h2>Code listing</h2>
 <script src="/static/js/showhidecode.js"></script>
 <div class="codelisting">
     <button onclick="showHideCode('codelisting_text')">Show/hide code</button>
+    <a href="source/raw"><button>raw</button></a>
     <pre id="codelisting_text" class="collapsible">
-{{ src }}
-    </pre>
+{{ src }}</pre>
 </div>
+
+{% if cfgex %}
+<h2>Example config file:</h2>
+<div class="codelisting">
+    <button onclick="showHideCode('codelisting_example')">Show/hide example</button>
+    <a href="exampleconfig"><button>raw</button></a>
+    <pre id="codelisting_example" class="collapsible">
+{{cfgex}}</pre>
+</div>
+{% endif %}
+
+{% if pars_fields %}
+<p>Config files for this driver are expected to have the following parameters:<br/>
+<button onclick="showHideCode('param_list')">Show/hide list of parameters</button>
+<ul id="param_list" class="collapsible">{% for pf in pars_fields %}
+    <li>{{ pf }}</li>
+{% endfor %}</ul>
+</p>
+{% endif %}
 
 <p>
     <a href="/">Back to main page.</a>
