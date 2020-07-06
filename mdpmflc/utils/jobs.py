@@ -1,3 +1,4 @@
+"""Stuff related to job control."""
 import os
 import subprocess
 from werkzeug.utils import secure_filename
@@ -5,6 +6,31 @@ from werkzeug.utils import secure_filename
 from mdpmflc.config import DPMDIR, DPMDRIVERS
 from mdpmflc.errorhandlers import *
 from mdpmflc.utils.listings import get_available_series
+
+
+class Job:
+    def __init__(self, driver, sername, simname, configfile):
+        self.driver = driver
+        self.sername = sername
+        self.simname = simname
+        self.configfile = configfile
+
+
+def sanitise_filename(filename):
+    """Sanitise the uploaded config file's filename. Raise an exception
+    if the filename doesn't have a proper extension.
+
+    @param configfile An uploaded file, from flask.request.files.get("configfile").
+    """
+    print(filename)
+    print(filename.rsplit('.', 1))
+    if not ('.' in filename and \
+            filename.rsplit('.',  1)[1] in ["txt", "config"]):
+        raise ValueError(f"{filename} is an illegal filename. It should have .txt or .config extension.)")
+    filename = secure_filename(filename)
+
+    return filename
+
 
 def start_job(driver, sername, simname, configfile):
     if driver not in DPMDRIVERS:
@@ -16,13 +42,7 @@ def start_job(driver, sername, simname, configfile):
     if not simname.isidentifier():
         raise ValueError(f"{simname} is an illegal name (fails isidentifier())")
 
-    # Sanitise the uploaded config file and validate the filename
-    filename = configfile.filename
-    if not ('.' in filename and \
-            filename.rsplit('.', 1)[1] == "config"):
-        raise ValueError(f"{filename} is an illegal filename.")
-    filename = secure_filename(filename)
-
+    filename = sanitise_filename(configfile.filename)
 
     # Create a directory for the simulation
     simdir = os.path.join(DPMDIR, sername, simname)
@@ -40,7 +60,6 @@ def start_job(driver, sername, simname, configfile):
     else:
         configfile.save(saveto)
 
-
     # Start the simulation
     executable = os.path.join(DPMDIR, driver)
     stdout_f = open(os.path.join(simdir, f"{simname}.log"), "a")
@@ -48,7 +67,8 @@ def start_job(driver, sername, simname, configfile):
     command = [executable, saveto, "-name", simname]
     print(command)
 
-    subprocess.run([executable, f"{simname}.config", "-name", simname],
-                   cwd=simdir,
-                   stdout=stdout_f,
-                   stderr=stderr_f)
+    subp = subprocess.Popen(['echo', executable, f"{simname}.config", "-name", simname],
+                            cwd=simdir,
+                            stdout=stdout_f,
+                            stderr=stderr_f)
+    return subp

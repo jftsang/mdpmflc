@@ -15,6 +15,7 @@ def redirect_to_main(sername=None):
 
 @app.route('/results/<sername>/')
 def show_series(sername):
+    """List the simulations belonging to a given series."""
     available_simulations = get_available_simulations(sername)
     if available_simulations is None:
         raise SeriesNotFoundError(sername)

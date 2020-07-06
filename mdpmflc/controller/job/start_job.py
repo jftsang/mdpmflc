@@ -37,7 +37,7 @@ def run_a_simulation():
     else:
         raise Exception("config file not given")
 
-    start_job(driver, sername, simname, configfile)
+    subp = start_job(driver, sername, simname, configfile)
 
     # return pformat(dir(flask.request.form))
     # return f"Started a run of driver {driver} on series {sername}, simulation name {simname}"

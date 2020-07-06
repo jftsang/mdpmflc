@@ -1,14 +1,12 @@
-import io
 from math import sqrt
-import numpy as np
 import os
 import random
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, ImageMagickWriter
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 from mdpmflc import DPMDIR
-from mdpmflc.utils.read_data_file import read_data_file
+from mdpmflc.model.simulation import Simulation
+from mdpmflc.utils.read_file import read_data_file
 
 
 def create_animation_old(sername, simname, maxframes, samplesize=50000):
@@ -19,8 +17,10 @@ def create_animation_old(sername, simname, maxframes, samplesize=50000):
     def init():
         path_collection.set_offsets([])
         return path_collection,
+
     def animate(ind):
-        data_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
+        sim = Simulation(sername, simname)
+        data_fn = sim.data_fn(ind)
         print(data_fn)
         dimensions, headline, time, particles = read_data_file(data_fn)
         if samplesize:

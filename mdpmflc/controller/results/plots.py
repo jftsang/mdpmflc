@@ -18,7 +18,7 @@ from matplotlib.animation import FuncAnimation, ImageMagickWriter
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 from mdpmflc import DPMDIR, CACHEDIR, app
-from mdpmflc.utils.simulation import get_max_indices
+from mdpmflc.model.simulation import Simulation
 from mdpmflc.utils.graphics import create_data_figure, create_ene_figure
 from mdpmflc.utils.anims import create_animation
 
@@ -37,7 +37,9 @@ def need_to_regenerate(target, sources):
 @app.route("/results/<sername>/<simname>/<ind>/plot/png")
 def showdataplot_png(sername, simname, ind):
     """A plot of a .data file, in PNG format."""
-    data_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
+    sim = Simulation(sername, simname)
+
+    data_fn = sim.data_fn(ind)
     dataplot_fn = os.path.join(CACHEDIR, "graphics", sername, simname, f"{simname}.data.{ind}.png")
 
     if (flask.request.values.get("nocache")
@@ -53,10 +55,10 @@ def showdataplot_png(sername, simname, ind):
         return Response(dataplot_f.read(), mimetype='image/png')
 
 
-
 @app.route("/results/<sername>/<simname>/plotene/")
 def showeneplot_png(sername, simname):
     """A plot of a .ene file, in PNG format."""
+    sim = Simulation(sername, simname)
     ene_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.ene")
     eneplot_fn = os.path.join(CACHEDIR, "graphics", sername, simname, f"{simname}.ene.png")
 
@@ -75,6 +77,7 @@ def showeneplot_png(sername, simname):
 
 @app.route("/results/<sername>/<simname>/animate")
 def anim(sername, simname):
+    sim = Simulation(sername, simname)
     # https://github.com/matplotlib/matplotlib/issues/16965
     anim_fn = os.path.join(CACHEDIR, "graphics", sername, simname, f"{simname}.gif")
     os.makedirs(os.path.dirname(anim_fn), exist_ok=True)
@@ -83,21 +86,22 @@ def anim(sername, simname):
     if flask.request.values.get("maxind"):
         max_data_index = int(flask.request.values.get("maxind"))
     else:
-        _, max_data_index, _ = get_max_indices(sername, simname)
+        _, max_data_index, _ = sim.max_inds()
 
     datafiles = [f"{base_fn}.{ind}" for ind in range(max_data_index)]
-    print(datafiles)
     if (flask.request.values.get("nocache")
         or need_to_regenerate(anim_fn, datafiles)):
         ani = create_animation(sername, simname, maxframes=max_data_index, samplesize=3000)
         ani.save(anim_fn, writer="imagemagick")
         # ani.save(anim_fn, writer="ffmpeg")
 
-    clip = mp.VideoFileClip(anim_fn)
+    if flask.request.values.get("format") == "webm":
+        clip = mp.VideoFileClip(anim_fn)
+        webm_fn = f"{anim_fn}.webm"
+        clip.write_videofile(webm_fn)
 
-    webm_fn = f"{anim_fn}.webm"
-    clip.write_videofile(webm_fn)
-
-    with open(webm_fn, "rb") as anim_f:
-        # return Response(anim_f.read(), mimetype="image/gif")
-        return Response(anim_f.read(), mimetype="video/webm")
+        with open(webm_fn, "rb") as webm_f:
+            return Response(webm_f.read(), mimetype="video/webm")
+    else:
+        with open(anim_fn, "rb") as anim_f:
+            return Response(anim_f.read(), mimetype="image/gif")
