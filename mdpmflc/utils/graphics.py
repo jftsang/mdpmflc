@@ -80,11 +80,17 @@ def create_ene_figure(ene_fn):
     ts, gpes, kes = read_ene_file(ene_fn)
 
     fig = Figure(figsize=(14, 6))
-    ax = fig.add_subplot(1, 1, 1)
-    ax.plot(ts, gpes, 'ko--',
-            ts, kes, 'rx-')
+    ax = fig.add_subplot(2, 1, 1)
+    ax.plot(ts, gpes, 'ko--')
     ax.set_xlabel('time')
-    ax.set_ylabel('energy')
+    ax.set_ylabel('gravitational potential energy')
     ax.grid()
+
+    ax = fig.add_subplot(2, 1, 2)
+    ax.plot(ts, kes, 'rx-')
+    ax.set_xlabel('time')
+    ax.set_ylabel('kinetic energy')
+    ax.grid()
+
 
     return fig
