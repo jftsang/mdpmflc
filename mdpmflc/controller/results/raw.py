@@ -27,5 +27,8 @@ def serve_fstat_raw(sername, simname, ind):
 def serve_restart_raw(sername, simname, ind):
     """Serve a raw .restart. file."""
     restart_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.restart.{ind}")
+    if not os.path.isfile(restart_fn):
+        restart_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.restart")
+
     restart_f = open(restart_fn, "r")
     return Response(restart_f.read(), mimetype="text/plain")
