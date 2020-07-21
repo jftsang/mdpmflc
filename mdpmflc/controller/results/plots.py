@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, ImageMagickWriter
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-from mdpmflc import DPMDIR, CACHEDIR, app
+from mdpmflc import CACHEDIR, app
 from mdpmflc.model.simulation import Simulation
 from mdpmflc.utils.graphics import create_data_figure, create_ene_figure
 from mdpmflc.utils.anims import create_animation
@@ -59,7 +59,7 @@ def showdataplot_png(sername, simname, ind):
 def showeneplot_png(sername, simname):
     """A plot of a .ene file, in PNG format."""
     sim = Simulation(sername, simname)
-    ene_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.ene")
+    ene_fn = sim.ene_fn()
     eneplot_fn = os.path.join(CACHEDIR, "graphics", sername, simname, f"{simname}.ene.png")
 
     if (flask.request.values.get("nocache")
@@ -81,7 +81,7 @@ def anim(sername, simname):
     # https://github.com/matplotlib/matplotlib/issues/16965
     anim_fn = os.path.join(CACHEDIR, "graphics", sername, simname, f"{simname}.gif")
     os.makedirs(os.path.dirname(anim_fn), exist_ok=True)
-    base_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data")
+    base_fn = sim.data_fn()
 
     if flask.request.values.get("maxind"):
         max_data_index = int(flask.request.values.get("maxind"))

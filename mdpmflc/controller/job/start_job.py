@@ -4,7 +4,7 @@ import subprocess
 import flask
 from flask import render_template
 
-from mdpmflc import app, DPMDIR, DPMDRIVERS
+from mdpmflc import app
 from mdpmflc.utils.jobs import start_job
 
 

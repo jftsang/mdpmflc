@@ -4,7 +4,7 @@ simulation.
 import os
 from flask import render_template
 
-from mdpmflc import DPMDIR, app
+from mdpmflc import app
 from mdpmflc.errorhandlers import SimulationNotFoundError
 from mdpmflc.model.simulation import Simulation
 from mdpmflc.utils.read_file import read_data_file
@@ -17,7 +17,6 @@ def showsim(sername, simname):
     """
     sim = Simulation(sername, simname)
     if not os.path.isdir(sim.simdir()):
-        # return f"The subdirectory {sername}/{simname} doesn't exist in the directory {DPMDIR}."
         raise SimulationNotFoundError(sername, simname)
 
     simstatus = sim.status()

@@ -70,11 +70,6 @@ def create_data_figure(data_fn, vels=None, samplesize=50000):
     return fig
 
 
-#def lagrangian_trace(sername, simname):
-#    dat_fn = os.path.join(DPMDIR, sername, simname, f"{simname}.data.{ind}")
-#    dimensions, headline, time, particles = read_data_file(dat_fn)
-
-
 def create_ene_figure(ene_fn):
     """Plot the information in an .ene file."""
     ts, gpes, kes = read_ene_file(ene_fn)

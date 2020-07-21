@@ -11,6 +11,15 @@ class Simulation:
     def simdir(self):
         return os.path.join(DPMDIR, self.sername, self.simname)
 
+    def config_fn(self):
+        return os.path.join(self.simdir(), f"{self.simname}.config")
+
+    def out_fn(self):
+        return os.path.join(self.simdir(), f"{self.simname}.log")
+
+    def err_fn(self):
+        return os.path.join(self.simdir(), f"{self.simname}.err")
+
     def data_fn(self, ind=None):
         """Return the path to a .data. file belonging to this
         simulation. If ind is not given then give the base name."""
@@ -28,8 +37,11 @@ class Simulation:
     def ene_fn(self):
         return os.path.join(self.simdir(), f"{self.simname}.ene")
 
-    def restart_fn(self):
-        return os.path.join(self.simdir(), f"{self.simname}.restart")
+    def restart_fn(self, ind=None):
+        if ind:
+            return os.path.join(self.simdir(), f"{self.simname}.restart.{ind}")
+        else:
+            return os.path.join(self.simdir(), f"{self.simname}.restart")
 
     def status(self):
         return read_restart_file(self.restart_fn(), header_only=True)

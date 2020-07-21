@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 
 from mdpmflc.config import DPMDIR, DPMDRIVERS
 from mdpmflc.errorhandlers import *
+from mdpmflc.model.simulation import Simulation
 from mdpmflc.utils.listings import get_available_series
 
 
@@ -45,7 +46,8 @@ def start_job(driver, sername, simname, configfile):
     filename = sanitise_filename(configfile.filename)
 
     # Create a directory for the simulation
-    simdir = os.path.join(DPMDIR, sername, simname)
+    sim = Simulation(sername, simname)
+    simdir = sim.simdir()
     try:
         os.mkdir(simdir)
     except PermissionError as e:
@@ -54,7 +56,7 @@ def start_job(driver, sername, simname, configfile):
         raise SimulationAlreadyExistsError(sername, simname, driver)
 
     # Put the uploaded config file there
-    saveto = os.path.join(simdir, f"{simname}.config")
+    saveto = sim.config_fn()
     if os.path.exists(saveto):
         raise SimulationAlreadyExistsError(sername, simname, driver)
     else:
@@ -62,8 +64,8 @@ def start_job(driver, sername, simname, configfile):
 
     # Start the simulation
     executable = os.path.join(DPMDIR, driver)
-    stdout_f = open(os.path.join(simdir, f"{simname}.log"), "a")
-    stderr_f = open(os.path.join(simdir, f"{simname}.err"), "a")
+    stdout_f = open(sim.out_fn(), "a")
+    stderr_f = open(sim.err_fn(), "a")
     command = [executable, saveto, "-name", simname]
     print(command)
 

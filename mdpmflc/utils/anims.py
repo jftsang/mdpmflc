@@ -4,7 +4,6 @@ import random
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, ImageMagickWriter
 
-from mdpmflc import DPMDIR
 from mdpmflc.model.simulation import Simulation
 from mdpmflc.utils.read_file import read_data_file
 
@@ -47,6 +46,7 @@ class AnimatedScatter(object):
     def __init__(self, sername, simname, maxframes, samplesize):
         self.sername = sername
         self.simname = simname
+        self.sim = Simulation(sername, simname)
         self.samplesize = samplesize
         # self.stream = self.data_stream()
 
@@ -71,7 +71,7 @@ class AnimatedScatter(object):
     def update(self, ind):
         """Update the scatter plot."""
         # data = next(self.stream)
-        data_fn = os.path.join(DPMDIR, self.sername, self.simname, f"{self.simname}.data.{ind}")
+        data_fn = self.sim.data_fn(ind)
         print(data_fn)
         dimensions, headline, time, particles = read_data_file(data_fn)
         self.ax.set_xlim((headline[2], headline[5]))
