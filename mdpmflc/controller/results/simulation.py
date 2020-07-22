@@ -26,7 +26,7 @@ def showsim(sername, simname):
 
     return render_template('simulation.html', sername=sername, simname=simname,
                            simstatus=simstatus,
-                           dt=simstatus['timeStep'],
+                           dt=simstatus['timeStep']*simstatus['dataFileSaveCount'],
                            mdi=max_data_index, mfi=max_fstat_index)
 
 
@@ -42,14 +42,14 @@ def showdatafile(sername, simname, ind):
     if dimensions == 2:
         return render_template("results/data2d.html",
                                sername=sername, simname=simname, ind=ind, time=time,
-                               dt=simstatus['timeStep'],
+                               dt=simstatus['timeStep']*simstatus['dataFileSaveCount'],
                                headline=headline, lines=particles,
                                mdi=max_data_index)
 
     if dimensions == 3:
         return render_template("results/data3d.html",
                                sername=sername, simname=simname, ind=ind, time=time,
-                               dt=simstatus['timeStep'],
+                               dt=simstatus['timeStep']*simstatus['dataFileSaveCount'],
                                headline=headline, lines=particles,
                                mdi=max_data_index)
 
@@ -71,14 +71,14 @@ def showdataplot(sername, simname, ind):
     if dimensions == 2:
         return render_template("results/data2d_plot.html",
                                sername=sername, simname=simname, ind=ind, time=time,
-                               dt=simstatus['timeStep'],
+                               dt=simstatus['timeStep']*simstatus['dataFileSaveCount'],
                                headline=headline, lines=particles,
                                mdi=max_data_index)
 
     elif dimensions == 3:
         return render_template("results/data3d_plot.html",
                                sername=sername, simname=simname, ind=ind, time=time,
-                               dt=simstatus['timeStep'],
+                               dt=simstatus['timeStep']*simstatus['dataFileSaveCount'],
                                headline=headline, lines=particles,
                                mdi=max_data_index)
 

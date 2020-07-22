@@ -36,9 +36,11 @@ def read_restart_file_header(restart_fn):
     dic = dict()
 
     dataFile_line = linecache.getline(restart_fn, 2).strip().split()
+    dic['dataFileSaveCount'] = int(dataFile_line[6])
     dic['dataFileCounter'] = int(dataFile_line[8])
 
     fStatFile_line = linecache.getline(restart_fn, 3).strip().split()
+    dic['fStatFileSaveCount'] = int(fStatFile_line[6])
     dic['fStatFileCounter'] = int(fStatFile_line[8])
 
     domain_line = linecache.getline(restart_fn, 8).strip().split()
