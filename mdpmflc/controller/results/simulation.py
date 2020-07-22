@@ -27,7 +27,7 @@ def showsim(sername, simname):
     return render_template('simulation.html', sername=sername, simname=simname,
                            simstatus=simstatus,
                            dt=simstatus['timeStep']*simstatus['dataFileSaveCount'],
-                           mdi=max_data_index, mfi=max_fstat_index)
+                           mdi=max_data_index, mfi=max_fstat_index, ind=0)
 
 
 @app.route('/results/<sername>/<simname>/log/')
@@ -78,7 +78,7 @@ def showdataplot(sername, simname, ind):
     """A page that contains a .data file's plot."""
     sim = Simulation(sername, simname)
     simstatus = sim.status()
-    _, max_data_index, max_fstat_index = sim.max_inds()
+    max_data_index = simstatus['dataFileCounter']-1
 
     dimensions, headline, time, particles = read_data_file(sim.data_fn(ind))
 
