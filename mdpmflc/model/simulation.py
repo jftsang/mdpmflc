@@ -15,10 +15,12 @@ class Simulation:
         return os.path.join(self.simdir(), f"{self.simname}.config")
 
     def out_fn(self):
-        return os.path.join(self.simdir(), f"{self.simname}.log")
+        #return os.path.join(self.simdir(), f"{self.simname}.log")
+        return os.path.join(self.simdir(), "cout")
 
     def err_fn(self):
-        return os.path.join(self.simdir(), f"{self.simname}.err")
+        #return os.path.join(self.simdir(), f"{self.simname}.err")
+        return os.path.join(self.simdir(), "cerr")
 
     def data_fn(self, ind=None):
         """Return the path to a .data. file belonging to this

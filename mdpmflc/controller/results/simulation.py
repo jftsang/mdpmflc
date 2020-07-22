@@ -2,7 +2,7 @@
 simulation.
 """
 import os
-from flask import render_template
+from flask import render_template, Response
 
 from mdpmflc import app
 from mdpmflc.errorhandlers import SimulationNotFoundError
@@ -28,6 +28,20 @@ def showsim(sername, simname):
                            simstatus=simstatus,
                            dt=simstatus['timeStep']*simstatus['dataFileSaveCount'],
                            mdi=max_data_index, mfi=max_fstat_index)
+
+
+@app.route('/results/<sername>/<simname>/log/')
+@app.route('/results/<sername>/<simname>/log/out')
+def showlogout(sername, simname):
+    sim = Simulation(sername, simname)
+    with open(sim.out_fn(), "r") as out_f:
+        return Response(out_f.read(), mimetype="text/plain")
+
+@app.route('/results/<sername>/<simname>/log/err')
+def showlogerr(sername, simname):
+    sim = Simulation(sername, simname)
+    with open(sim.err_fn(), "r") as err_f:
+        return Response(err_f.read(), mimetype="text/plain")
 
 
 @app.route('/results/<sername>/<simname>/data/<ind>')

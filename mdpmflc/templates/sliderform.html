@@ -17,6 +17,9 @@
         <input id="data_raw" type="button" value="raw .data"/>
         <input id="fstat_raw" type="button" value="raw .fstat"/>
         <input id="restart_raw" type="button" value="raw .restart"/>
+        <br/>
+        <input id="logcout" type="button" value="cout"/>
+        <input id="logcerr" type="button" value="cerr"/>
 
     <script>
         var slider = document.getElementById("index_slider");
@@ -76,6 +79,18 @@
         document.getElementById("restart_raw").onclick = function()
         {
             formlf.action = '/results/{{sername}}/{{simname}}/restart/'+slider.value+'/raw';
+            formlf.submit();
+        }
+
+        document.getElementById("logcout").onclick = function()
+        {
+            formlf.action = '/results/{{sername}}/{{simname}}/log/out';
+            formlf.submit();
+        }
+
+        document.getElementById("logcerr").onclick = function()
+        {
+            formlf.action = '/results/{{sername}}/{{simname}}/log/err';
             formlf.submit();
         }
     </script>
