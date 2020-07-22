@@ -30,12 +30,21 @@ def showsim(sername, simname):
                            mdi=max_data_index, mfi=max_fstat_index, ind=0)
 
 
+@app.route('/results/<sername>/<simname>/config')
+@app.route('/results/<sername>/<simname>/config/raw')
+def showconfig(sername, simname):
+    sim = Simulation(sername, simname)
+    with open(sim.config_fn(), "r") as config_f:
+        return Response(config_f.read(), mimetype="text/plain")
+
+
 @app.route('/results/<sername>/<simname>/log/')
 @app.route('/results/<sername>/<simname>/log/out')
 def showlogout(sername, simname):
     sim = Simulation(sername, simname)
     with open(sim.out_fn(), "r") as out_f:
         return Response(out_f.read(), mimetype="text/plain")
+
 
 @app.route('/results/<sername>/<simname>/log/err')
 def showlogerr(sername, simname):
