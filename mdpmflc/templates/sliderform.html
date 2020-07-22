@@ -22,7 +22,6 @@
         var slider = document.getElementById("index_slider");
         var index_number = document.getElementById("index_number");
         var lab_time = document.getElementById("time");
-        // var lab_ind = document.getElementById("ind");
         var formlf = document.getElementById("form_loadfiles");
 
         lab_time.innerHTML = slider.value * {{dt}};
@@ -40,13 +39,13 @@
 
         document.getElementById("plotbutton").onclick = function()
         {
-            formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/plot');
+            formlf.action = '/results/{{sername}}/{{simname}}/plot/'+slider.value;
             formlf.submit();
         }
 
         document.getElementById("data_page").onclick = function()
         {
-            formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/data');
+            formlf.action = '/results/{{sername}}/{{simname}}/data/'+slider.value;
             formlf.submit();
         }
 
@@ -58,25 +57,25 @@
 
         document.getElementById("fstat_page").onclick = function()
         {
-            formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/fstat');
+            formlf.action = '/results/{{sername}}/{{simname}}/fstat/'+slider.value;
             formlf.submit();
         }
 
         document.getElementById("data_raw").onclick = function()
         {
-            formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/data/raw');
+            formlf.action = '/results/{{sername}}/{{simname}}/data/'+slider.value+'/raw';
             formlf.submit();
         }
 
         document.getElementById("fstat_raw").onclick = function()
         {
-            formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/fstat/raw');
+            formlf.action = '/results/{{sername}}/{{simname}}/fstat/'+slider.value+'/raw';
             formlf.submit();
         }
 
         document.getElementById("restart_raw").onclick = function()
         {
-            formlf.action = '/results/{{sername}}/{{simname}}/'.concat(slider.value, '/restart/raw');
+            formlf.action = '/results/{{sername}}/{{simname}}/restart/'+slider.value+'/raw';
             formlf.submit();
         }
     </script>

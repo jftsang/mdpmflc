@@ -7,7 +7,7 @@ from mdpmflc import app
 from mdpmflc.model.simulation import Simulation
 
 
-@app.route('/results/<sername>/<simname>/<ind>/data/raw')
+@app.route('/results/<sername>/<simname>/data/<ind>/raw')
 def serve_data_raw(sername, simname, ind):
     """Serve a raw .data. file."""
     sim = Simulation(sername, simname)
@@ -16,7 +16,7 @@ def serve_data_raw(sername, simname, ind):
     return Response(dat_f.read(), mimetype="text/plain")
 
 
-@app.route('/results/<sername>/<simname>/<ind>/fstat/raw')
+@app.route('/results/<sername>/<simname>/fstat/<ind>/raw')
 def serve_fstat_raw(sername, simname, ind):
     """Serve a raw .fstat. file."""
     sim = Simulation(sername, simname)
@@ -25,7 +25,7 @@ def serve_fstat_raw(sername, simname, ind):
     return Response(fstat_f.read(), mimetype="text/plain")
 
 
-@app.route('/results/<sername>/<simname>/<ind>/restart/raw')
+@app.route('/results/<sername>/<simname>/restart/<ind>/raw')
 def serve_restart_raw(sername, simname, ind):
     """Serve a raw .restart. file."""
     sim = Simulation(sername, simname)

@@ -30,7 +30,7 @@ def showsim(sername, simname):
                            mdi=max_data_index, mfi=max_fstat_index)
 
 
-@app.route('/results/<sername>/<simname>/<ind>/data/')
+@app.route('/results/<sername>/<simname>/data/<ind>')
 def showdatafile(sername, simname, ind):
     sim = Simulation(sername, simname)
     simstatus = sim.status()
@@ -54,13 +54,12 @@ def showdatafile(sername, simname, ind):
                                mdi=max_data_index)
 
 
-@app.route('/results/<sername>/<simname>/<ind>/fstat/')
+@app.route('/results/<sername>/<simname>/fstat/<ind>')
 def showfstatfile(sername, simname, ind):
     return None
 
 
-@app.route('/results/<sername>/<simname>/<ind>/')
-@app.route("/results/<sername>/<simname>/<ind>/plot/")
+@app.route("/results/<sername>/<simname>/plot/<ind>")
 def showdataplot(sername, simname, ind):
     """A page that contains a .data file's plot."""
     sim = Simulation(sername, simname)
