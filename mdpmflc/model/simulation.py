@@ -15,16 +15,17 @@ class Simulation:
         return os.path.join(self.simdir(), f"{self.simname}.config")
 
     def out_fn(self):
-        #return os.path.join(self.simdir(), f"{self.simname}.log")
+        # return os.path.join(self.simdir(), f"{self.simname}.log")
         return os.path.join(self.simdir(), "cout")
 
     def err_fn(self):
-        #return os.path.join(self.simdir(), f"{self.simname}.err")
+        # return os.path.join(self.simdir(), f"{self.simname}.err")
         return os.path.join(self.simdir(), "cerr")
 
     def data_fn(self, ind=None):
         """Return the path to a .data. file belonging to this
-        simulation. If ind is not given then give the base name."""
+        simulation. If ind is not given then give the base name.
+        """
         if ind:
             return os.path.join(self.simdir(), f"{self.simname}.data.{ind}")
         else:
@@ -59,3 +60,7 @@ class Simulation:
         max_data_index = max([int(fp[2]) for fp in files_parsed if len(fp) == 3 and fp[1] == "data"])
         max_fstat_index = max([int(fp[2]) for fp in files_parsed if len(fp) == 3 and fp[1] == "fstat"])
         return files_parsed, max_data_index, max_fstat_index
+
+    def file_list(self):
+        """List of files belonging to the simulation, in the simdir."""
+        return os.listdir(self.simdir())

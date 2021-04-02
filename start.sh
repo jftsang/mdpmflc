@@ -1,3 +1,4 @@
 #!/bin/bash
-# source ./venv/bin/activate
+set -eux
+source ./venv/bin/activate
 python -m mdpmflc

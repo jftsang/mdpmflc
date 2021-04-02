@@ -34,7 +34,7 @@ def need_to_regenerate(target, sources):
     return False
 
 
-@app.route("/results/<sername>/<simname>/<ind>/plot/png")
+@app.route("/results/<sername>/<simname>/plot/<ind>/png")
 def showdataplot_png(sername, simname, ind):
     """A plot of a .data file, in PNG format."""
     sim = Simulation(sername, simname)
@@ -46,7 +46,11 @@ def showdataplot_png(sername, simname, ind):
         or need_to_regenerate(dataplot_fn, [data_fn])):
         logging.info("Generating a new image")
         os.makedirs(os.path.dirname(dataplot_fn), exist_ok=True)
-        fig = create_data_figure(data_fn, samplesize=50000)
+        if flask.request.values.get("samplesize"):
+            samplesize = int(flask.request.values.get("samplesize"))
+        else:
+            samplesize = 50000
+        fig = create_data_figure(data_fn, samplesize=samplesize)
         FigureCanvas(fig).print_png(dataplot_fn)
     else:
         logging.info("Serving a cached image")
@@ -86,7 +90,7 @@ def anim(sername, simname):
     if flask.request.values.get("maxind"):
         max_data_index = int(flask.request.values.get("maxind"))
     else:
-        _, max_data_index, _ = sim.max_inds()
+        _, max_data_index, _ = sim.status()['dataFileCounter']
 
     datafiles = [f"{base_fn}.{ind}" for ind in range(max_data_index)]
     if (flask.request.values.get("nocache")
