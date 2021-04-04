@@ -25,6 +25,15 @@ def serve_fstat_raw(sername, simname, ind):
     return Response(fstat_f.read(), mimetype="text/plain")
 
 
+@app.route('/results/<sername>/<simname>/ene/raw')
+def serve_ene_raw(sername, simname):
+    """Serve a raw .ene file."""
+    sim = Simulation(sername, simname)
+    ene_fn = sim.ene_fn()
+    with open(ene_fn) as ene_f:
+        return Response(ene_f.read(), mimetype="text/plain")
+
+
 @app.route('/results/<sername>/<simname>/restart/<ind>/raw')
 def serve_restart_raw(sername, simname, ind):
     """Serve a raw .restart. file."""
