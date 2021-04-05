@@ -35,22 +35,15 @@ def create_data_figure(data_fn, vels=None, samplesize=20000):
         except ValueError:
             pass
 
-#    xs = [p[0] for p in particles]
-#    ys = [p[1] for p in particles]
-#    if dimensions == 2:
-#        rs = [p[4] for p in particles]
-#        sps = [p[7] for p in particles]
-#    if dimensions == 3:
-#        rs = [p[6] for p in particles]
-#        sps = [p[13] for p in particles]
-
-    # ax.scatter(xs, ys, marker='.', s=1, c=sps)
-    # ax.scatter(xs, ys, marker='o', s=rs, c=sps, cmap='hsv')
-    # ax.scatter(xs, ys, marker='.', s=rs, c=sps)
     # https://stackoverflow.com/questions/33094509/correct-sizing-of-markers-in-scatter-plot-to-a-radius-r-in-matplotlib#33095224
     # https://stackoverflow.com/questions/14827650/pyplot-scatter-plot-marker-size#14860958
-    # ax.scatter(xs, ys, s=[sqrt(r) for r in rs], c=sps)
-    ax.scatter(data_df.x, data_df.y, s=np.sqrt(data_df.r), c=data_df.sp)
+    im = ax.scatter(
+        data_df.x, data_df.y, s=np.sqrt(data_df.r),
+        c=data_df.sp,
+        cmap=plt.get_cmap("viridis", 3),
+        vmin=0, vmax=2
+    )
+    fig.colorbar(im, ticks=[0, 1, 2], orientation="horizontal")
 
     if vels:
         for p in data_df.itertuples():

@@ -49,7 +49,7 @@ def showdataplot_png(sername, simname, ind):
         if flask.request.values.get("samplesize"):
             samplesize = int(flask.request.values.get("samplesize"))
         else:
-            samplesize = 50000
+            samplesize = 20000
         fig = create_data_figure(data_fn, samplesize=samplesize)
         FigureCanvas(fig).print_png(dataplot_fn)
     else:

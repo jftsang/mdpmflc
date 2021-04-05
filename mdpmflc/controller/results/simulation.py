@@ -66,14 +66,14 @@ def showdatafile(sername, simname, ind):
         return render_template("results/data2d.html",
                                sername=sername, simname=simname, ind=ind, time=time,
                                dt=simstatus['timeStep']*simstatus['dataFileSaveCount'],
-                               headline=headline, lines=particles,
+                               lines=data_df,
                                mdi=max_data_index)
 
     if dimensions == 3:
         return render_template("results/data3d.html",
                                sername=sername, simname=simname, ind=ind, time=time,
                                dt=simstatus['timeStep']*simstatus['dataFileSaveCount'],
-                               headline=headline, lines=particles,
+                               lines=data_df,
                                mdi=max_data_index)
 
 

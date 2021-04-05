@@ -45,7 +45,7 @@
     
     </tr>
     </thead>
-    {% for l in lines %}
+    {% for l in lines.itertuples() %}
     <tr>
         {% for c in l %}
         <td>{{c}}</td>
