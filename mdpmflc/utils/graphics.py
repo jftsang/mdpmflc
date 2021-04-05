@@ -1,6 +1,7 @@
 from math import sqrt
 import random
 
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -72,20 +73,48 @@ def create_data_figure(data_fn, vels=None, samplesize=50000):
 
 def create_ene_figure(ene_fn):
     """Plot the information in an .ene file."""
-    ts, gpes, kes = read_ene_file(ene_fn)
+    ene_df = read_ene_file(ene_fn)
 
-    fig = Figure(figsize=(14, 6))
-    ax = fig.add_subplot(2, 1, 1)
-    ax.plot(ts, gpes, 'ko--')
-    ax.set_xlabel('time')
-    ax.set_ylabel('gravitational potential energy')
-    ax.grid()
+    fig = Figure(figsize=(14,6))
+    axs = fig.subplots(2, 2)
+    axs[0,0].plot(ene_df.time, ene_df.gravitEnergy, 'g',
+                ene_df.time, ene_df.traKineticEnergy, 'b',
+                ene_df.time, ene_df.elasticEnergy, 'r')
+    axs[0,0].legend(['gravitEnergy', 'traKineticEnergy', 'elasticEnergy'])
+    axs[0,0].grid()
 
-    ax = fig.add_subplot(2, 1, 2)
-    ax.plot(ts, kes, 'rx-')
-    ax.set_xlabel('time')
-    ax.set_ylabel('kinetic energy')
-    ax.grid()
+    axs[0,1].plot(ene_df.time, ene_df.traKineticEnergy, 'b',
+                ene_df.time, ene_df.rotKineticEnergy, 'c',
+                ene_df.time, ene_df.elasticEnergy, 'r')
+    axs[0,1].set_xlabel('time')
+    axs[0,1].legend(
+        ['traKineticEnergy', 'rotKineticEnergy', 'elasticEnergy']
+    )
+    max_y = max(
+        np.percentile(ene_df.traKineticEnergy.array, 95),
+        np.percentile(ene_df.rotKineticEnergy.array, 95),
+        np.percentile(ene_df.elasticEnergy.array, 95)
+    )
+    axs[0,1].set_ylim([0, max_y])
+    axs[0,1].grid()
 
+    axs[1,0].plot(
+        ene_df.time,
+        np.sqrt(ene_df.traKineticEnergy / ene_df.gravitEnergy), 'k')
+    axs[1,0].set_xlabel('time')
+    axs[1,0].set_ylabel('sqrt(TKE/GPE)')
+    axs[1,0].grid()
 
+    axs[1,1].plot(
+        ene_df.time, ene_df.traKineticEnergy, 'b',
+        ene_df.time, ene_df.rotKineticEnergy, 'c',
+        ene_df.time, ene_df.elasticEnergy, 'r'
+    )
+    axs[1,1].set_xlabel('time')
+    axs[1,1].set_ylabel('energy')
+    axs[1,1].set_yscale('log')
+    axs[1,1].legend(
+        ['traKineticEnergy', 'rotKineticEnergy', 'elasticEnergy']
+    )
+    axs[1,1].grid()
     return fig

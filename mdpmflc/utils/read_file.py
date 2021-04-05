@@ -1,24 +1,13 @@
 import os
 import random
 import linecache  # for reading large files
+import pandas as pd
 # https://stackoverflow.com/questions/2081836/reading-specific-lines-only
 
 
 def read_ene_file(ene_fn):
     """Read the information from an .ene file."""
-    ts = []
-    gpes = []
-    kes = []
-    with open(ene_fn, "r") as ene_f:
-        ene_f.readline()  # discard the first line
-        for x in ene_f:
-            line = x.strip().split()
-            line = [float(l) for l in line]
-            ts.append(line[0])
-            gpes.append(line[1])
-            kes.append(line[2])
-
-    return ts, gpes, kes
+    return pd.read_csv(ene_fn, sep='\s+')
 
 
 def read_restart_file(restart_fn, header_only=False):
