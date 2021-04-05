@@ -60,7 +60,7 @@ def showdatafile(sername, simname, ind):
     max_data_index = simstatus['dataFileCounter']-1
     max_fstat_index = simstatus['fStatFileCounter']-1
 
-    dimensions, headline, time, particles = read_data_file(sim.data_fn(ind))
+    data_df, dimensions, num, time, xmin, ymin, zmin, xmax, ymax, zmax = read_data_file(sim.data_fn(ind))
 
     if dimensions == 2:
         return render_template("results/data2d.html",
@@ -89,20 +89,20 @@ def showdataplot(sername, simname, ind):
     simstatus = sim.status()
     max_data_index = simstatus['dataFileCounter']-1
 
-    dimensions, headline, time, particles = read_data_file(sim.data_fn(ind))
+    data_df, dimensions, num, time, xmin, ymin, zmin, xmax, ymax, zmax = read_data_file(sim.data_fn(ind))
 
     if dimensions == 2:
         return render_template("results/data2d_plot.html",
                                sername=sername, simname=simname, ind=ind, time=time,
                                dt=simstatus['timeStep']*simstatus['dataFileSaveCount'],
-                               headline=headline, lines=particles,
+                               lines=data_df,
                                mdi=max_data_index)
 
     elif dimensions == 3:
         return render_template("results/data3d_plot.html",
                                sername=sername, simname=simname, ind=ind, time=time,
                                dt=simstatus['timeStep']*simstatus['dataFileSaveCount'],
-                               headline=headline, lines=particles,
+                               lines=data_df,
                                mdi=max_data_index)
 
     else:

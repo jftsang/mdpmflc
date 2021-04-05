@@ -10,10 +10,13 @@ from matplotlib.animation import FuncAnimation, ImageMagickWriter
 # https://matplotlib.org/gallery/animation/dynamic_image2.html
 import matplotlib.animation as animation
 
-from mdpmflc.utils.read_file import read_data_file, read_ene_file
+from mdpmflc.utils.read_file import (
+    read_data_file,
+    read_ene_file,
+)
 
 
-def create_data_figure(data_fn, vels=None, samplesize=50000):
+def create_data_figure(data_fn, vels=None, samplesize=20000):
     """Plots the data from a .data file. Returns the figure as a
     plt.Figure object.
 
@@ -24,50 +27,40 @@ def create_data_figure(data_fn, vels=None, samplesize=50000):
     fig = Figure(figsize=(14, 6))
     ax = fig.add_subplot(1, 1, 1)
 
-    dimensions, headline, time, particles = read_data_file(data_fn)
+    data_df, dimensions, num, time, xmin, ymin, zmin, xmax, ymax, zmax = read_data_file(data_fn)
 
     if samplesize:
         try:
-            particles = random.sample(particles, samplesize)
+            data_df = data_df.sample(n=samplesize)
         except ValueError:
             pass
 
-    xs = [p[0] for p in particles]
-    ys = [p[1] for p in particles]
-    if dimensions == 2:
-        rs = [p[4] for p in particles]
-        sps = [p[7] for p in particles]
-    if dimensions == 3:
-        rs = [p[6] for p in particles]
-        sps = [p[13] for p in particles]
+#    xs = [p[0] for p in particles]
+#    ys = [p[1] for p in particles]
+#    if dimensions == 2:
+#        rs = [p[4] for p in particles]
+#        sps = [p[7] for p in particles]
+#    if dimensions == 3:
+#        rs = [p[6] for p in particles]
+#        sps = [p[13] for p in particles]
 
     # ax.scatter(xs, ys, marker='.', s=1, c=sps)
     # ax.scatter(xs, ys, marker='o', s=rs, c=sps, cmap='hsv')
     # ax.scatter(xs, ys, marker='.', s=rs, c=sps)
     # https://stackoverflow.com/questions/33094509/correct-sizing-of-markers-in-scatter-plot-to-a-radius-r-in-matplotlib#33095224
     # https://stackoverflow.com/questions/14827650/pyplot-scatter-plot-marker-size#14860958
-    ax.scatter(xs, ys, s=[sqrt(r) for r in rs], c=sps)
+    # ax.scatter(xs, ys, s=[sqrt(r) for r in rs], c=sps)
+    ax.scatter(data_df.x, data_df.y, s=np.sqrt(data_df.r), c=data_df.sp)
 
     if vels:
-        if dimensions == 2:
-            us = [p[2] for p in particles]
-            vs = [p[3] for p in particles]
-        if dimensions == 3:
-            us = [p[3] for p in particles]
-            vs = [p[4] for p in particles]
+        for p in data_df.itertuples():
+            ax.arrow(p.x, p.y, p.u * vels, p.v * vels)
 
-        for i in range(len(xs)):
-            ax.arrow(xs[i], ys[i], us[i] * vels, vs[i] * vels)
-
-    if dimensions == 2:
-        ax.set_xlim((headline[2], headline[4]))
-        ax.set_ylim((headline[3], headline[5]))
-    if dimensions == 3:
-        ax.set_xlim((headline[2], headline[5]))
-        ax.set_ylim((headline[3], headline[6]))
+    ax.set_xlim([xmin, xmax])
+    ax.set_ylim([ymin, ymax])
     ax.set_aspect('equal')
-
     ax.grid()
+
     return fig
 
 
