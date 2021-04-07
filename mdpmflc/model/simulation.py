@@ -26,13 +26,13 @@ class Simulation:
         """Return the path to a .data. file belonging to this
         simulation. If ind is not given then give the base name.
         """
-        if ind:
+        if ind is not None:
             return os.path.join(self.simdir(), f"{self.simname}.data.{ind}")
         else:
             return os.path.join(self.simdir(), f"{self.simname}.data")
 
     def fstat_fn(self, ind=None):
-        if ind:
+        if ind is not None:
             return os.path.join(self.simdir(), f"{self.simname}.fstat.{ind}")
         else:
             return os.path.join(self.simdir(), f"{self.simname}.fstat")
@@ -41,7 +41,7 @@ class Simulation:
         return os.path.join(self.simdir(), f"{self.simname}.ene")
 
     def restart_fn(self, ind=None):
-        if ind:
+        if ind is not None:
             return os.path.join(self.simdir(), f"{self.simname}.restart.{ind}")
         else:
             return os.path.join(self.simdir(), f"{self.simname}.restart")
