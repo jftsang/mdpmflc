@@ -10,6 +10,7 @@ from matplotlib.animation import FuncAnimation, ImageMagickWriter
 # https://matplotlib.org/gallery/animation/dynamic_image2.html
 import matplotlib.animation as animation
 
+from mdpmflc.utils.cg import x_front
 from mdpmflc.utils.read_file import (
     read_data_file,
     read_ene_file,
@@ -24,9 +25,6 @@ def create_data_figure(data_fn, vels=None, samplesize=20000):
     plotted. If it is None, or if it is smaller than the number of
     particles, then all particles are plotted.
     """
-    fig = Figure(figsize=(14, 6))
-    ax = fig.add_subplot(1, 1, 1)
-
     data_df, dimensions, num, time, xmin, ymin, zmin, xmax, ymax, zmax = read_data_file(data_fn)
 
     if samplesize:
@@ -34,6 +32,9 @@ def create_data_figure(data_fn, vels=None, samplesize=20000):
             data_df = data_df.sample(n=samplesize)
         except ValueError:
             pass
+
+    fig = Figure(figsize=(12, (ymax-ymin)/(xmax-xmin)*12 + 1))
+    ax = fig.add_subplot(1, 1, 1)
 
     # https://stackoverflow.com/questions/33094509/correct-sizing-of-markers-in-scatter-plot-to-a-radius-r-in-matplotlib#33095224
     # https://stackoverflow.com/questions/14827650/pyplot-scatter-plot-marker-size#14860958
@@ -43,11 +44,18 @@ def create_data_figure(data_fn, vels=None, samplesize=20000):
         cmap=plt.get_cmap("viridis", 3),
         vmin=0, vmax=2
     )
-    fig.colorbar(im, ticks=[0, 1, 2], orientation="horizontal")
+    # fig.colorbar(im, ticks=[0, 1, 2], orientation="horizontal")
 
     if vels:
         for p in data_df.itertuples():
             ax.arrow(p.x, p.y, p.u * vels, p.v * vels)
+
+
+
+    ys = np.linspace(ymin, ymax)
+    dy = ys[1] - ys[0]
+    x_fronts = x_front(data_df, ys, dy, periodicity=(ymax-ymin))
+    ax.plot(x_fronts, ys, 'r-')
 
     ax.set_xlim([xmin, xmax])
     ax.set_ylim([ymin, ymax])

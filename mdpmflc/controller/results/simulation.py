@@ -7,7 +7,9 @@ from flask import render_template, Response
 from mdpmflc import app
 from mdpmflc.errorhandlers import SimulationNotFoundError
 from mdpmflc.model.simulation import Simulation
-from mdpmflc.utils.read_file import read_data_file
+from mdpmflc.utils.read_file import (
+    read_data_file,
+)
 
 
 @app.route('/results/<sername>/<simname>/')
