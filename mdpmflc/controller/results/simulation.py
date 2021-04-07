@@ -62,7 +62,8 @@ def showdatafile(sername, simname, ind):
     max_data_index = simstatus['dataFileCounter']-1
     max_fstat_index = simstatus['fStatFileCounter']-1
 
-    data_df, dimensions, num, time, xmin, ymin, zmin, xmax, ymax, zmax = read_data_file(sim.data_fn(ind))
+    data_df, dimensions, headline = read_data_file(sim.data_fn(ind))
+    num, time, xmin, ymin, zmin, xmax, ymax, zmax = headline
 
     if dimensions == 2:
         return render_template("results/data2d.html",
@@ -85,13 +86,14 @@ def showfstatfile(sername, simname, ind):
 
 
 @app.route("/results/<sername>/<simname>/plot/<ind>")
-def showdataplot(sername, simname, ind):
+def showdataplot_page(sername, simname, ind):
     """A page that contains a .data file's plot."""
     sim = Simulation(sername, simname)
     simstatus = sim.status()
     max_data_index = simstatus['dataFileCounter']-1
 
-    data_df, dimensions, num, time, xmin, ymin, zmin, xmax, ymax, zmax = read_data_file(sim.data_fn(ind))
+    data_df, dimensions, headline = read_data_file(sim.data_fn(ind))
+    num, time, xmin, ymin, zmin, xmax, ymax, zmax = headline
 
     if dimensions == 2:
         return render_template("results/data2d_plot.html",

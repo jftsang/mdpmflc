@@ -1,8 +1,9 @@
 import os
 
 
-DPMDIR = "/home/ubuntu/s3gf"
-SRCDIR = "/opt/MercuryDPM/MercurySource/Drivers/USER/jmft2/Fingering"
+# DPMDIR = "/Users/jmft2/s3gf"
+DPMDIR = "/Volumes/Transcend/Fingering/"
+SRCDIR = "/Volumes/Transcend/MercuryDPM/MercurySource/Drivers/USER/jmft2/Fingering"
 CACHEDIR = "/tmp/mdpmflc.cache"
 DPMDRIVERS = ["MaserFingering", "MdpmflcTutorial"]
 

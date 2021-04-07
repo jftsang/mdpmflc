@@ -15,7 +15,7 @@ from flask import Response
 
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, ImageMagickWriter
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.backends.backend_agg import FigureCanvas, FigureCanvasAgg
 
 from mdpmflc import CACHEDIR, app
 from mdpmflc.model.simulation import Simulation
@@ -34,29 +34,47 @@ def need_to_regenerate(target, sources):
     return False
 
 
-@app.route("/results/<sername>/<simname>/plot/<ind>/png")
-def showdataplot_png(sername, simname, ind):
-    """A plot of a .data file, in PNG format."""
+@app.route("/results/<sername>/<simname>/plot/<ind>/<form>")
+def showdataplot_fig(sername, simname, ind, form="png"):
+    """A plot of a .data file, in PNG format by default."""
     sim = Simulation(sername, simname)
 
     data_fn = sim.data_fn(ind)
-    dataplot_fn = os.path.join(CACHEDIR, "graphics", sername, simname, f"{simname}.data.{ind}.png")
+    dataplot_fn = os.path.join(
+        CACHEDIR, "graphics", sername, simname, f"{simname}.data.{ind}.{form}"
+    )
 
     if (flask.request.values.get("nocache")
         or need_to_regenerate(dataplot_fn, [data_fn])):
         logging.info("Generating a new image")
         os.makedirs(os.path.dirname(dataplot_fn), exist_ok=True)
-        if flask.request.values.get("samplesize"):
-            samplesize = int(flask.request.values.get("samplesize"))
+
+        samplesize = flask.request.values.get("samplesize")
+        samplesize = int(samplesize) if samplesize else 20000
+
+        width = flask.request.values.get("width")
+        width = float(width) if width else 7
+
+        fig = create_data_figure(
+            data_fn, samplesize=samplesize, width=width
+        )
+        # canvas = FigureCanvas(fig)
+        # print(dir(canvas))
+        if form in ["png", "svg", "pdf"]:
+            fig.savefig(dataplot_fn, format=form)
         else:
-            samplesize = 20000
-        fig = create_data_figure(data_fn, samplesize=samplesize)
-        FigureCanvas(fig).print_png(dataplot_fn)
+            raise NotImplementedError
     else:
         logging.info("Serving a cached image")
 
+
+    mimetype = {
+        'png': 'image/png',
+        'svg': 'image/svg',
+        'pdf': 'application/pdf'
+    }
     with open(dataplot_fn, "rb", buffering=0) as dataplot_f:
-        return Response(dataplot_f.read(), mimetype='image/png')
+        return Response(dataplot_f.read(), mimetype=mimetype[form])
 
 
 @app.route("/results/<sername>/<simname>/plotene/")
@@ -90,12 +108,14 @@ def anim(sername, simname):
     if flask.request.values.get("maxind"):
         max_data_index = int(flask.request.values.get("maxind"))
     else:
-        _, max_data_index, _ = sim.status()['dataFileCounter']
+        max_data_index = sim.status()['dataFileCounter']
 
     datafiles = [f"{base_fn}.{ind}" for ind in range(max_data_index)]
     if (flask.request.values.get("nocache")
         or need_to_regenerate(anim_fn, datafiles)):
-        ani = create_animation(sername, simname, maxframes=max_data_index, samplesize=3000)
+        ani = create_animation(
+            sername, simname, maxframes=12, samplesize=3000
+        )
         ani.save(anim_fn, writer="imagemagick")
         # ani.save(anim_fn, writer="ffmpeg")
 

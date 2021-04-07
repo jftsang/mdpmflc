@@ -3,6 +3,7 @@ import os
 import random
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, ImageMagickWriter
+import numpy as np
 
 from mdpmflc.model.simulation import Simulation
 from mdpmflc.utils.read_file import read_data_file
@@ -20,19 +21,20 @@ def create_animation_old(sername, simname, maxframes, samplesize=50000):
     def animate(ind):
         sim = Simulation(sername, simname)
         data_fn = sim.data_fn(ind)
-        print(data_fn)
-        dimensions, headline, time, particles = read_data_file(data_fn)
+        data_df, dimensions, headline = read_data_file(data_fn)
+        num, time, xmin, ymin, zmin, xmax, ymax, zmax = headline
         if samplesize:
             try:
-                particles = random.sample(particles, samplesize)
+                data_df = data_df.sample(n=samplesize)
             except ValueError:
                 pass
-        ax.set_xlim((headline[2], headline[5]))
-        ax.set_ylim((headline[3], headline[6]))
-        pts = [[p[0], p[1]] for p in particles]
+
+        ax.set_xlim([xmin, xmax])
+        ax.set_ylim([ymin, ymax])
+        pts = [(p.x, p.y) for p in data_df.itertuples()]
         path_collection.set_offsets(pts)
-        path_collection.set_sizes([sqrt(p[6]) for p in particles])
-        path_collection.set_array([p[13] for p in particles])
+        path_collection.set_sizes(np.sqrt(data_df.r))
+        path_collection.set_array(data_df.sp)
         return path_collection,
 
     anim = FuncAnimation(fig, animate, init_func=init,
@@ -51,12 +53,15 @@ class AnimatedScatter(object):
         # self.stream = self.data_stream()
 
         # Setup the figure and axes...
-        self.fig = plt.Figure(figsize=(14,6))
+        self.fig = plt.Figure(figsize=(12, 6))
         self.ax = self.fig.add_subplot(1,1,1)
         # Then setup FuncAnimation.
-        self.ani = FuncAnimation(self.fig, self.update, interval=5,
-                                          frames=maxframes,
-                                          init_func=self.setup_plot, blit=True)
+        self.ani = FuncAnimation(
+            self.fig, self.update, interval=5,
+            frames=maxframes,
+            init_func=self.setup_plot,
+            blit=True
+        )
 
     def setup_plot(self):
         """Initial drawing of the scatter plot."""
@@ -72,23 +77,19 @@ class AnimatedScatter(object):
         """Update the scatter plot."""
         # data = next(self.stream)
         data_fn = self.sim.data_fn(ind)
+        print(ind)
         print(data_fn)
-        dimensions, headline, time, particles = read_data_file(data_fn)
-        self.ax.set_xlim((headline[2], headline[5]))
-        self.ax.set_ylim((headline[3], headline[6]))
+        data_df, dimensions, headline = read_data_file(data_fn)
+        num, time, xmin, ymin, zmin, xmax, ymax, zmax = headline
+        self.ax.set_xlim((xmin, xmax))
+        self.ax.set_ylim((ymin, ymax))
 
-        # Set x and y data...
-        offsets = [[p[0], p[1]] for p in particles]
-        xs = [p[0] for p in particles]
-        ys = [p[1] for p in particles]
-        radii = [sqrt(p[6]) for p in particles] # TODO wrong way?
-        colors = [p[13] for p in particles]
-        # self.scat.set_offsets(offsets)
-        # Set sizes...
-        # self.scat.set_sizes(radii)
-        # Set colors..
-        # self.scat.set_array(colors)
-        self.scat = self.ax.scatter(xs, ys, s=radii, c=colors)
+        self.scat = self.ax.scatter(
+            data_df.x, data_df.y, s=np.sqrt(data_df.r),
+            c=data_df.sp,
+            cmap=plt.get_cmap("viridis", 3),
+            vmin=0, vmax=2
+        )
 
         # We need to return the updated artist for FuncAnimation to draw..
         # Note that it expects a sequence of artists, thus the trailing comma.

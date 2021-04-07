@@ -103,11 +103,11 @@ def read_data_file_headline(filename):
 
     # Determine the dimensionality of the simulation from the length of the first line
 
-    return dimensions, *headline
+    return dimensions, headline
 
 
 def read_data_file(filename):
-    dimensions, num, time, xmin, ymin, zmin, xmax, ymax, zmax = read_data_file_headline(filename)
+    dimensions, headline = read_data_file_headline(filename)
     if dimensions == 2:
         column_names = ['x', 'y', 'u', 'v', 'r', 'th', 'om', 'sp']
     if dimensions == 3:
@@ -123,4 +123,4 @@ def read_data_file(filename):
         sep=' ',
         names=column_names
     )
-    return data_df, dimensions, num, time, xmin, ymin, zmin, xmax, ymax, zmax
+    return data_df, dimensions, headline

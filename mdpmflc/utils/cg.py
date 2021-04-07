@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import pandas as pd
-from mdpmflc.utils.read_file import read_data_file
 
 
 @np.vectorize

@@ -17,7 +17,9 @@ from mdpmflc.utils.read_file import (
 )
 
 
-def create_data_figure(data_fn, vels=None, samplesize=20000):
+def create_data_figure(
+    data_fn, vels=None, samplesize=20000, width=7
+):
     """Plots the data from a .data file. Returns the figure as a
     plt.Figure object.
 
@@ -25,7 +27,9 @@ def create_data_figure(data_fn, vels=None, samplesize=20000):
     plotted. If it is None, or if it is smaller than the number of
     particles, then all particles are plotted.
     """
-    data_df, dimensions, num, time, xmin, ymin, zmin, xmax, ymax, zmax = read_data_file(data_fn)
+    data_df, dimensions, headline = read_data_file(data_fn)
+    num, time, xmin, ymin, zmin, xmax, ymax, zmax = headline
+    xmax = 40
 
     if samplesize:
         try:
@@ -33,7 +37,7 @@ def create_data_figure(data_fn, vels=None, samplesize=20000):
         except ValueError:
             pass
 
-    fig = Figure(figsize=(12, (ymax-ymin)/(xmax-xmin)*12 + 1))
+    fig = Figure(figsize=(width, (ymax-ymin)/(xmax-xmin)*width + 0.5))
     ax = fig.add_subplot(1, 1, 1)
 
     # https://stackoverflow.com/questions/33094509/correct-sizing-of-markers-in-scatter-plot-to-a-radius-r-in-matplotlib#33095224
