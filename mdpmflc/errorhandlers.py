@@ -44,7 +44,8 @@ def simulation_already_exists(error):
     return render_template('errors/simulationalreadyexists.html',
                            sername=error.args[0],
                            simname=error.args[1],
-                           driver=error.args[2]), 409
+                           driver=error.args[2],
+                           message=str(error)), 409
 
 
 @app.errorhandler(404)

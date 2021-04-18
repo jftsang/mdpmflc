@@ -14,22 +14,27 @@
 
 <h2>Start a new simulation</h2>
 
-<form action="/run" method="post" enctype="multipart/form-data">
+<form action="/queue" method="post" enctype="multipart/form-data">
     Driver name is <input type="input" name="driver" value={{driver}} readonly/>
     <br/>
-    Series name
-    <select name="sername">
+    <label for="sername">Series name</label>
+    <select id="sername" name="sername" required="true">
         <option></option>
         {% for s in available_series %}
             <option value="{{s}}">{{s}}</option>
         {% endfor %}
     </select>
     <br/>
-    Simulation name <input type="input" name="simname" value=""/>
+    <label for="simname">Simulation name</label>
+    <input id="simname" type="input" name="simname" value="" required="true"/>
     <br/>
+    <!--
     Configuration file <input type="file" name="configfile"/>
+    -->
+    <label for="configfile">Configuration</label><br/>
+    <textarea id="configfile" name="configfile" rows="40" cols="80"></textarea>
     <br/>
-    <input type="submit" value="Run job"/>
+    <input type="submit" value="Queue a job"/>
 </form>
 
 <p>
