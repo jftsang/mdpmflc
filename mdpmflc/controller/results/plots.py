@@ -50,7 +50,7 @@ def showdataplot_fig(sername, simname, ind, form="png"):
         os.makedirs(os.path.dirname(dataplot_fn), exist_ok=True)
 
         samplesize = flask.request.values.get("samplesize")
-        samplesize = int(samplesize) if samplesize else 20000
+        samplesize = float(samplesize) if samplesize else 20000
 
         width = flask.request.values.get("width")
         width = float(width) if width else 7

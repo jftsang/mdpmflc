@@ -20,38 +20,50 @@ from mdpmflc.utils.read_file import (
 def create_data_figure(
     data_fn, vels=None, samplesize=20000, width=7
 ):
-    """Plots the data from a .data file. Returns the figure as a
-    plt.Figure object.
+    """Produce a plot of the particle positions etc. from a .data file.
 
     If samplesize is given, it specifies the number of points to be
     plotted. If it is None, or if it is smaller than the number of
     particles, then all particles are plotted.
+
+    Args:
+        vels: Whether or not to display velocity vectors for particles
+        samplesize: Number of particles to display
+
+    Returns:
+        fig: An instance of plt.Figure
     """
     data_df, dimensions, headline = read_data_file(data_fn)
     num, time, xmin, ymin, zmin, xmax, ymax, zmax = headline
     xmax = 40
 
+    to_plot_data_df = data_df
     if samplesize:
         try:
-            data_df = data_df.sample(n=samplesize)
+            if samplesize > 1:
+                to_plot_data_df = data_df.sample(n=samplesize)
+            else:
+                to_plot_data_df = data_df.sample(frac=samplesize)
         except ValueError:
             pass
 
-    fig = Figure(figsize=(width, (ymax-ymin)/(xmax-xmin)*width + 0.5))
+    fig = Figure(figsize=(width, (ymax-ymin)/(xmax-xmin)*width - 0.0))
     ax = fig.add_subplot(1, 1, 1)
 
     # https://stackoverflow.com/questions/33094509/correct-sizing-of-markers-in-scatter-plot-to-a-radius-r-in-matplotlib#33095224
     # https://stackoverflow.com/questions/14827650/pyplot-scatter-plot-marker-size#14860958
     im = ax.scatter(
-        data_df.x, data_df.y, s=np.sqrt(data_df.r),
-        c=data_df.sp,
+        to_plot_data_df.x,
+        to_plot_data_df.y,
+        s=np.sqrt(to_plot_data_df.r),
+        c=to_plot_data_df.sp,
         cmap=plt.get_cmap("viridis", 3),
         vmin=0, vmax=2
     )
     # fig.colorbar(im, ticks=[0, 1, 2], orientation="horizontal")
 
     if vels:
-        for p in data_df.itertuples():
+        for p in to_plot_data_df.itertuples():
             ax.arrow(p.x, p.y, p.u * vels, p.v * vels)
 
 
