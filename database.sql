@@ -1,0 +1,17 @@
+BEGIN TRANSACTION;
+CREATE TABLE IF NOT EXISTS "series" (
+	"name"	TEXT NOT NULL UNIQUE,
+	PRIMARY KEY("name")
+);
+CREATE TABLE IF NOT EXISTS "jobs" (
+	"id"	INTEGER NOT NULL,
+	"simname"	TEXT NOT NULL,
+	"series"	TEXT NOT NULL,
+	"driver"	TEXT,
+	"config"	TEXT,
+	"command"	TEXT,
+	"status"	INTEGER DEFAULT 0,
+	-- FOREIGN KEY("series") REFERENCES "series",
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+COMMIT;

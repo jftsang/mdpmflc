@@ -1,13 +1,19 @@
 """Stuff related to job control."""
+import logging
 import os
+import sqlite3
 import subprocess
+
+import pandas as pd
 from werkzeug.utils import secure_filename
 
-from mdpmflc.config import DPMDIR, DPMDRIVERS
+from mdpmflc.config import DPMDIR, DPMDRIVERS, SQLITE_FILE
 from mdpmflc.errorhandlers import *
 from mdpmflc.model.simulation import Simulation
 from mdpmflc.utils.listings import get_available_series
 
+
+logging.getLogger().setLevel(logging.INFO)
 
 class Job:
     def __init__(self, driver, sername, simname, configfile):
@@ -33,7 +39,9 @@ def sanitise_filename(filename):
     return filename
 
 
-def start_job(driver, sername, simname, configfile):
+def queue_job(driver, sername, simname, configfile):
+    """Queue a simulation."""
+
     if driver not in DPMDRIVERS:
         raise Exception(f"{driver} is not a recognised driver.")
 
@@ -43,8 +51,27 @@ def start_job(driver, sername, simname, configfile):
     if not simname.isidentifier():
         raise ValueError(f"{simname} is an illegal name (fails isidentifier())")
 
-    filename = sanitise_filename(configfile.filename)
+    # Check for duplication
+    queue = get_queue()
+    if any((queue.series == sername) & (queue.simname == simname)):
+        raise SimulationAlreadyExistsError(
+            driver, sername, simname,
+            "That combination of series and simulation name has already been used"
+        )
 
+    with sqlite3.connect(SQLITE_FILE) as conn:
+        pd.DataFrame({
+            'simname': [simname],
+            'series': [sername],
+            'driver': [driver],
+            'config': [configfile],
+            'status': [0]
+        }).to_sql('jobs', conn, if_exists='append', index=False)
+
+
+
+
+def start_job(driver, sername, simname):
     # Create a directory for the simulation
     sim = Simulation(sername, simname)
     simdir = sim.simdir()
@@ -59,18 +86,31 @@ def start_job(driver, sername, simname, configfile):
     saveto = sim.config_fn()
     if os.path.exists(saveto):
         raise SimulationAlreadyExistsError(sername, simname, driver)
-    else:
-        configfile.save(saveto)
 
-    # Start the simulation
+    with open(saveto, "w") as fp:
+        fp.write(configfile)
+        logging.info(f"Saved config file to {saveto}")
+
+    # Queue the simulation
     executable = os.path.join(DPMDIR, driver)
     stdout_f = open(sim.out_fn(), "a")
     stderr_f = open(sim.err_fn(), "a")
     command = [executable, saveto, "-name", simname]
     print(command)
 
-    subp = subprocess.Popen(['echo', executable, f"{simname}.config", "-name", simname],
+    subp = subprocess.Popen(['echo'] + command,
                             cwd=simdir,
                             stdout=stdout_f,
                             stderr=stderr_f)
     return subp
+
+
+def get_queue():
+    print(SQLITE_FILE)
+    with sqlite3.connect(SQLITE_FILE) as conn:
+        return pd.read_sql_query("SELECT * FROM jobs", conn)
+
+
+def does_simulation_already_exist(sername, simname):
+    # TODO
+    pass
