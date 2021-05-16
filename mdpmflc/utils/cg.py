@@ -22,18 +22,12 @@ def cg_data(df, x, y, kernel_width):
     if df2.shape[0] == 0:
         rho = px = py = 0.0
     else:
-        rho = sum(df2.apply(
-            lambda p: kernel(dist(x, y, p.x, p.y), kernel_width) * np.pi * p.r**2,
-            axis=1
-        ))
-        px = sum(df2.apply(
-            lambda p: kernel(dist(x, y, p.x, p.y), kernel_width) * np.pi * p.r**2 * p.u,
-            axis=1
-        ))
-        py = sum(df2.apply(
-            lambda p: kernel(dist(x, y, p.x, p.y), kernel_width) * np.pi * p.r**2 * p.v
-            , axis=1
-        ))
+        dists = dist(x, y, df2.x, df2.y)
+        kers = kernel(dists, kernel_width)
+        rho = np.sum(kers * np.pi * df2.r ** 2)
+        px = np.sum(kers * np.pi * df2.r ** 2 * df2.u)
+        py = np.sum(kers * np.pi * df2.r ** 2 * df2.v)
+
     return rho, px, py
 
 cg_data = np.vectorize(cg_data)
