@@ -17,6 +17,24 @@ def dist(x0, y0, x1, y1):
 
 
 def cg_data(df, x, y, kernel_width):
+    """Calculate the 2D coarse-grained fields at the specified point
+    (x, y).
+
+    Parameters:
+        df: A dataframe of particles (use read_data_file).
+        x, y: Coordinates of the point of interest. May be numpy
+              arrays (use np.meshgrid).
+        kernel_width: The coarse-graining kernel width to use.
+
+    Returns:
+        rho, px, py: The density and momentum fields at the specified
+                     position(s). May be numpy arrays.
+    """
+    # Calculating the distance between points is quite an expensive
+    # process, even if vectorized. Therefore, we filter the dataframe
+    # before calculating distances and kernels. Note that the filter
+    # includes some particles that are more than kernel_width away from
+    # the point of interest - these will result in kernel = 0.
     df2 = df[(x - kernel_width < df.x) & (df.x < x + kernel_width)
             & (y - kernel_width < df.y) & (df.y < y + kernel_width)]
     if df2.shape[0] == 0:
