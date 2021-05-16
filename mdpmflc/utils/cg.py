@@ -77,3 +77,28 @@ x_front.excluded.add(0)
 x_front.excluded.add(2)
 x_front.excluded.add(3)
 x_front.excluded.add(4)
+
+
+def depth(df, x, y, kernel_width, period_y=None, percentile=95):
+    if period_y:
+        df2 = df[
+            (x - kernel_width < df.x) & (df.x < x + kernel_width)
+            & (
+                ((y - kernel_width < df.y) & (df.y < y + kernel_width))
+                | ((y - kernel_width < df.y - period_y) & (df.y - period_y < y + kernel_width))
+                | ((y - kernel_width < df.y + period_y) & (df.y + period_y < y + kernel_width))
+            )
+        ]
+    else:
+        df2 = df[(x - kernel_width < df.x) & (df.x < x + kernel_width)
+                & (y - kernel_width < df.y) & (df.y < y + kernel_width)]
+
+    if df2.shape[0]:
+        return np.percentile(df2.z, percentile)
+    else:
+        return 0
+
+depth = np.vectorize(depth)
+depth.excluded.add(0)
+depth.excluded.add(4)
+depth.excluded.add(5)

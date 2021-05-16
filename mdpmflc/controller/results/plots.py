@@ -20,9 +20,16 @@ from matplotlib.backends.backend_agg import FigureCanvas, FigureCanvasAgg
 from mdpmflc import CACHEDIR, app
 from mdpmflc.model.simulation import Simulation
 from mdpmflc.utils.graphics import create_data_figure, create_ene_figure
+from mdpmflc.utils.graphics_cg import plot_depth
 from mdpmflc.utils.anims import create_animation
 
 logging.getLogger().setLevel(logging.INFO)
+
+MIMETYPE = {
+    'png': 'image/png',
+    'svg': 'image/svg',
+    'pdf': 'application/pdf'
+}
 
 def need_to_regenerate(target, sources):
     if not os.path.isfile(target):
@@ -34,7 +41,7 @@ def need_to_regenerate(target, sources):
     return False
 
 
-@app.route("/results/<sername>/<simname>/plot/<ind>/<form>")
+@app.route("/plots/<sername>/<simname>/<ind>/<form>")
 def showdataplot_fig(sername, simname, ind, form="png"):
     """A plot of a .data file, in PNG format by default."""
     sim = Simulation(sername, simname)
@@ -56,7 +63,7 @@ def showdataplot_fig(sername, simname, ind, form="png"):
         width = float(width) if width else 7
 
         fig = create_data_figure(
-            data_fn, samplesize=samplesize, width=width
+            data_fn, samplesize=samplesize, fig_width=width
         )
         # canvas = FigureCanvas(fig)
         # print(dir(canvas))
@@ -67,17 +74,11 @@ def showdataplot_fig(sername, simname, ind, form="png"):
     else:
         logging.info("Serving a cached image")
 
-
-    mimetype = {
-        'png': 'image/png',
-        'svg': 'image/svg',
-        'pdf': 'application/pdf'
-    }
     with open(dataplot_fn, "rb", buffering=0) as dataplot_f:
-        return Response(dataplot_f.read(), mimetype=mimetype[form])
+        return Response(dataplot_f.read(), mimetype=MIMETYPE[form])
 
 
-@app.route("/results/<sername>/<simname>/plotene/")
+@app.route("/plots/<sername>/<simname>/ene")
 def showeneplot_png(sername, simname):
     """A plot of a .ene file, in PNG format."""
     sim = Simulation(sername, simname)
@@ -97,7 +98,7 @@ def showeneplot_png(sername, simname):
         return Response(eneplot_f.read(), mimetype='image/png')
 
 
-@app.route("/results/<sername>/<simname>/animate")
+@app.route("/plots/<sername>/<simname>/animate")
 def anim(sername, simname):
     sim = Simulation(sername, simname)
     # https://github.com/matplotlib/matplotlib/issues/16965

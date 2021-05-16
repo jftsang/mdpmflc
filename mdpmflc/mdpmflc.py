@@ -11,6 +11,7 @@ import mdpmflc.controller.job.start_job
 import mdpmflc.controller.results.simulation
 import mdpmflc.controller.results.listing
 import mdpmflc.controller.results.plots
+import mdpmflc.controller.results.plots_cg
 import mdpmflc.controller.results.raw
 import mdpmflc.controller.help
 import mdpmflc.controller.miscPages

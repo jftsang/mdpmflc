@@ -1,3 +1,4 @@
+"""Creating figures that plot information from .data. and .ene files."""
 from math import sqrt
 import random
 
@@ -18,7 +19,7 @@ from mdpmflc.utils.read_file import (
 
 
 def create_data_figure(
-    data_fn, vels=None, samplesize=20000, width=7
+    data_fn, vels=None, samplesize=20000, fig_width=7, kernel_width=0.4
 ):
     """Produce a plot of the particle positions etc. from a .data file.
 
@@ -29,6 +30,7 @@ def create_data_figure(
     Args:
         vels: Whether or not to display velocity vectors for particles
         samplesize: Number of particles to display
+        kernel_width: Radius of coarse-graining kernels
 
     Returns:
         fig: An instance of plt.Figure
@@ -41,13 +43,14 @@ def create_data_figure(
     if samplesize:
         try:
             if samplesize > 1:
-                to_plot_data_df = data_df.sample(n=samplesize)
+                to_plot_data_df = data_df.sample(n=int(samplesize))
             else:
                 to_plot_data_df = data_df.sample(frac=samplesize)
         except ValueError:
             pass
 
-    fig = Figure(figsize=(width, (ymax-ymin)/(xmax-xmin)*width - 0.0))
+    fig_height = (ymax-ymin)/(xmax-xmin)*fig_width - 0.0
+    fig = Figure(figsize=(fig_width, fig_height))
     ax = fig.add_subplot(1, 1, 1)
 
     # https://stackoverflow.com/questions/33094509/correct-sizing-of-markers-in-scatter-plot-to-a-radius-r-in-matplotlib#33095224
@@ -66,11 +69,10 @@ def create_data_figure(
         for p in to_plot_data_df.itertuples():
             ax.arrow(p.x, p.y, p.u * vels, p.v * vels)
 
-
-
-    ys = np.linspace(ymin, ymax)
-    dy = ys[1] - ys[0]
-    x_fronts = x_front(data_df, ys, dy, periodicity=(ymax-ymin))
+    ys = np.linspace(ymin, ymax, 201)
+    x_fronts = x_front(
+        data_df, ys, kernel_width, periodicity=(ymax-ymin)
+    )
     ax.plot(x_fronts, ys, 'r-')
 
     ax.set_xlim([xmin, xmax])
