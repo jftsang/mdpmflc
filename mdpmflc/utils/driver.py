@@ -12,7 +12,7 @@ def get_config_fields(src, pars_name="pars"):
 
     pars_fields = []
     for matchNum, match in enumerate(matches, start=1):
-        for group_ind in range(1, len(match.groups())+1, 2):
+        for group_ind in range(1, len(match.groups()) + 1, 2):
             if match.group(group_ind) not in pars_fields:
                 pars_fields.append(match.group(group_ind))
 

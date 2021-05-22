@@ -20,12 +20,15 @@ from matplotlib.backends.backend_agg import FigureCanvas, FigureCanvasAgg
 
 from mdpmflc import CACHEDIR, app
 from mdpmflc.model.simulation import Simulation
-from mdpmflc.utils.graphics_cg import plot_depth
+from mdpmflc.utils.graphics_cg import plot_depth, plot_cg_field
 
 logging.getLogger().setLevel(logging.INFO)
 
-@app.route("/plots/<sername>/<simname>/<ind>/depth")
-def showdepthplot_fig(sername, simname, ind):
+@app.route("/plots/<sername>/<simname>/<ind>/<field>")
+def showdepthplot_fig(sername, simname, ind, field):
+    if field not in {"depth", "rho", "px", "py", "u", "v"}:
+        raise NotImplementedError
+
     sim = Simulation(sername, simname)
 
     data_fn = sim.data_fn(ind)
@@ -33,31 +36,44 @@ def showdepthplot_fig(sername, simname, ind):
     form = flask.request.values.get("form")
     if form is None:
         form = "png"
-    depthplot_fn = os.path.join(
-        CACHEDIR, "graphics", sername, simname, f"{simname.replace('data', 'depth')}.{ind}.{form}"
+    plot_fn = os.path.join(
+        CACHEDIR, "graphics", sername, simname,
+        ".".join([simname, field, ind, form])
     )
+    logging.info(plot_fn)
 
     if (flask.request.values.get("nocache")
-        or need_to_regenerate(depthplot_fn, [data_fn])):
+        or need_to_regenerate(plot_fn, [data_fn])):
         logging.info("Generating a new image")
-        os.makedirs(os.path.dirname(depthplot_fn), exist_ok=True)
+        os.makedirs(os.path.dirname(plot_fn), exist_ok=True)
 
         fig_width = flask.request.values.get("fig_width")
         fig_width = float(fig_width) if fig_width else 7
         fig_height = flask.request.values.get("fig_height")
         fig_height = float(fig_height) if fig_height else None
+        colormin = flask.request.values.get("colormin")
+        colormin = float(colormin) if colormin else None
+        colormax = flask.request.values.get("colormax")
+        colormax = float(colormax) if colormax else None
 
-        fig = plot_depth(
-            data_fn, fig_width=fig_width, fig_height=fig_height
-        )
+        if field == "depth":
+            fig = plot_depth(
+                data_fn, fig_width=fig_width, fig_height=fig_height,
+                colormin=colormin, colormax=colormax
+            )
+        else:
+            fig = plot_cg_field(data_fn, field, kernel_width=0.4,
+                    fig_width=fig_width, fig_height=fig_height,
+                    colormin=colormin, colormax=colormax
+                    )
         # canvas = FigureCanvas(fig)
         # print(dir(canvas))
         if form in ["png", "svg", "pdf"]:
-            fig.savefig(depthplot_fn, format=form)
+            fig.savefig(plot_fn, format=form)
         else:
             raise NotImplementedError
     else:
         logging.info("Serving a cached image")
 
-    with open(depthplot_fn, "rb", buffering=0) as depthplot_f:
-        return Response(depthplot_f.read(), mimetype=MIMETYPE[form])
+    with open(plot_fn, "rb", buffering=0) as plot_f:
+        return Response(plot_f.read(), mimetype=MIMETYPE[form])

@@ -41,10 +41,13 @@ def need_to_regenerate(target, sources):
     return False
 
 
-@app.route("/plots/<sername>/<simname>/<ind>/<form>")
-def showdataplot_fig(sername, simname, ind, form="png"):
+@app.route("/plots/<sername>/<simname>/<ind>/data")
+def showdataplot_fig(sername, simname, ind):
     """A plot of a .data file, in PNG format by default."""
     sim = Simulation(sername, simname)
+    form = flask.request.values.get("form")
+    if form is None:
+        form = "png"
 
     data_fn = sim.data_fn(ind)
     dataplot_fn = os.path.join(
@@ -115,7 +118,7 @@ def anim(sername, simname):
     if (flask.request.values.get("nocache")
         or need_to_regenerate(anim_fn, datafiles)):
         ani = create_animation(
-            sername, simname, maxframes=12, samplesize=3000
+            sername, simname, maxframes=max_data_index, samplesize=3000
         )
         ani.save(anim_fn, writer="imagemagick")
         # ani.save(anim_fn, writer="ffmpeg")

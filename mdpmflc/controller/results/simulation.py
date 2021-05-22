@@ -62,7 +62,14 @@ def showdatafile(sername, simname, ind):
     max_data_index = simstatus['dataFileCounter']-1
     max_fstat_index = simstatus['fStatFileCounter']-1
 
-    data_df, dimensions, headline = read_data_file(sim.data_fn(ind))
+    ind = int(ind)
+    if ind > max_data_index:
+        return f"The index {ind} is greater than the maximum index {max_data_index} so far", 400
+
+    try:
+        data_df, dimensions, headline = read_data_file(sim.data_fn(ind))
+    except FileNotFoundError:
+        return f"{sim.data_fn(ind)} not found"
     num, time, xmin, ymin, zmin, xmax, ymax, zmax = headline
 
     if dimensions == 2:

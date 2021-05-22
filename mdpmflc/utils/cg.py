@@ -16,6 +16,11 @@ def dist(x0, y0, x1, y1):
     return np.sqrt((x1 - x0)**2 + (y1 - y0)**2)
 
 
+@np.vectorize
+def dist3d(x0, y0, z0, x1, y1, z1):
+    return np.sqrt((x1 - x0)**2 + (y1 - y0)**2 + (z1 - z0)**2)
+
+
 def cg_data(df, x, y, kernel_width):
     """Calculate the 2D coarse-grained fields at the specified point
     (x, y).
@@ -52,6 +57,27 @@ cg_data = np.vectorize(cg_data)
 cg_data.excluded.add(0)
 cg_data.excluded.add(3)
 
+
+def cg_data3d(df, x, y, z, kernel_width):
+    df2 = df[(x - kernel_width < df.x) & (df.x < x + kernel_width)
+            & (y - kernel_width < df.y) & (df.y < y + kernel_width)
+            & (z - kernel_width < df.z) & (df.z < z + kernel_width)
+            ]
+    if df2.shape[0] == 0:
+        rho = px = py = pz = 0.0
+    else:
+        dists = dist3d(x, y, z, df2.x, df2.y, df2.z)
+        kers = kernel(dists, kernel_width)
+        rho = np.sum(kers * np.pi * df2.r ** 2)
+        px = np.sum(kers * np.pi * df2.r ** 2 * df2.u)
+        py = np.sum(kers * np.pi * df2.r ** 2 * df2.v)
+        pz = np.sum(kers * np.pi * df2.r ** 2 * df2.w)
+
+    return rho, px, py, pz
+
+cg_data3d = np.vectorize(cg_data3d)
+cg_data3d.excluded.add(0)
+cg_data3d.excluded.add(4)
 
 def x_front(df, y, dy, periodicity=None, percentile=95):
     if periodicity:

@@ -36,9 +36,10 @@ def plot_field(
     ax = fig.add_subplot(111)
 
     if colormin is None:
-        colormin = 0
+        # colormin = 0
+        colormin = np.percentile(field_g.flatten(), 0)
     if colormax is None:
-        colormax = max(field_g.flatten())
+        colormax = np.percentile(field_g.flatten(), 95)
 
     norm = cm.colors.Normalize(vmin=colormin, vmax=colormax)
     pcm = ax.pcolormesh(xg, yg, field_g, norm=norm, shading='gouraud')
@@ -92,6 +93,7 @@ def plot_cg_field(data_fn, field, kernel_width=0.4, **kwargs):
     """
     data_df, dimensions, headline = read_data_file(data_fn)
     num, time, xmin, ymin, zmin, xmax, ymax, zmax = headline
+    xmax = 40
 
     xs, ys = np.linspace(xmin, xmax), np.linspace(ymin, ymax)
     xg, yg = np.meshgrid(xs, ys)
