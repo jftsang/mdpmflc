@@ -12,6 +12,14 @@ def kernel(r, kernel_width):
 
 
 @np.vectorize
+def kernel3d(r, kernel_width):
+    if r <= kernel_width:
+        return 105 / (32 * np.pi * kernel_width**7) * (kernel_width**2 - r**2)**2
+    else:
+        return 0
+
+
+@np.vectorize
 def dist(x0, y0, x1, y1):
     return np.sqrt((x1 - x0)**2 + (y1 - y0)**2)
 
@@ -67,7 +75,7 @@ def cg_data3d(df, x, y, z, kernel_width):
         rho = px = py = pz = 0.0
     else:
         dists = dist3d(x, y, z, df2.x, df2.y, df2.z)
-        kers = kernel(dists, kernel_width)
+        kers = kernel3d(dists, kernel_width)
         rho = np.sum(kers * np.pi * df2.r ** 2)
         px = np.sum(kers * np.pi * df2.r ** 2 * df2.u)
         py = np.sum(kers * np.pi * df2.r ** 2 * df2.v)
