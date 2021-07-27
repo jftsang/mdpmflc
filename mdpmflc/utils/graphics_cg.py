@@ -1,4 +1,5 @@
 """Creating figures that show coarse-grained fields."""
+from typing import Dict
 
 from matplotlib import cm
 import matplotlib.pyplot as plt
@@ -83,7 +84,7 @@ def plot_depth(
 def plot_cg_field(data_fn, field, kernel_width=0.4, **kwargs):
     """Produce a plot of a field from a .data file.
 
-    Argumentss:
+    Arguments:
         data_fn:
         field: One of 'rho', 'px', 'py', 'u', or 'v'
         kernel_width: Radius of coarse-graining kernels

@@ -69,8 +69,6 @@ def queue_job(driver, sername, simname, configfile):
         }).to_sql('jobs', conn, if_exists='append', index=False)
 
 
-
-
 def start_job(driver, sername, simname):
     # Create a directory for the simulation
     sim = Simulation(sername, simname)
