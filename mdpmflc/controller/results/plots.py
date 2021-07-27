@@ -62,11 +62,15 @@ def showdataplot_fig(sername, simname, ind):
         samplesize = flask.request.values.get("samplesize")
         samplesize = float(samplesize) if samplesize else 20000
 
-        width = flask.request.values.get("width")
-        width = float(width) if width else 7
+        fig_width = flask.request.values.get("width")
+        fig_width = float(fig_width) if fig_width else 7
+        fig_height = flask.request.values.get("height")
+        fig_height = float(fig_height) if fig_height else None
 
         fig = create_data_figure(
-            data_fn, samplesize=samplesize, fig_width=width
+            data_fn, samplesize=samplesize,
+            fig_width=fig_width,
+            fig_height=fig_height,
         )
         # canvas = FigureCanvas(fig)
         # print(dir(canvas))

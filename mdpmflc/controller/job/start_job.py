@@ -22,12 +22,12 @@ def queue_a_simulation():
     if "driver" in flask.request.values:
         driver = flask.request.values.get("driver")
     else:
-        raise Exception("driver not given")
+        raise Exception("driver not specified")
 
     if "sername" in flask.request.values:
         sername = flask.request.values.get("sername")
     else:
-        raise Exception("sername not given")
+        raise Exception("sername not specified")
 
     if "simname" in flask.request.values:
         simname = flask.request.values.get("simname")
@@ -36,6 +36,10 @@ def queue_a_simulation():
     else:
         raise Exception("simname not given")
 
+#    if "configfile" in flask.request.files:
+#        configfile = flask.request.files.get("configfile")
+#    else:
+#        raise Exception("config file not given")
 
     if "configfile" in flask.request.values:
         configfile = flask.request.values.get("configfile")

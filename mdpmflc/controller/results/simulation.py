@@ -22,8 +22,10 @@ def showsim(sername, simname):
         raise SimulationNotFoundError(sername, simname)
 
     simstatus = sim.status()
+    print(simstatus)
 
     max_data_index = simstatus['dataFileCounter']-1
+    print(max_data_index)
     max_fstat_index = simstatus['fStatFileCounter']-1
 
     return render_template('simulation.html', sername=sername, simname=simname,
