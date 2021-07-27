@@ -12,5 +12,6 @@ setup(name='mdpmflc',
                         'matplotlib>=3.2.0',
                         'Flask-sqlalchemy>=2.4.3',
                         'moviepy>=1.0.3',
+                        'numpy>=1.19.4',
                         'pandas>=1.1.4']
  )
