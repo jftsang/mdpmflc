@@ -1,7 +1,5 @@
-import os
 from typing import Optional
 import numpy as np
-import pandas as pd
 
 from mdpmflc.utils.decorators import timed
 
@@ -15,51 +13,56 @@ def kernel(r, kernel_width, normalised=True):
     else:
         return 0
 
-kernel = np.vectorize(kernel)
-kernel.excluded.add(2)
+kernel = np.vectorize(kernel, excluded=[2])
 
 
 @np.vectorize
 def kernel_hard(r, kernel_width):
-    if r <= kernel_width:
-        return 1 / (np.pi * kernel_width**2)
-    else:
-        return 0
+    return np.where(
+        r <= kernel_width, 1 / (np.pi * kernel_width**2), 0
+    )
 
 
 def kernel3d(r, kernel_width):
-    if r <= kernel_width:
-        return 105 / (32 * np.pi * kernel_width**7) * (kernel_width**2 - r**2)**2
-    else:
-        return 0
+    return np.where(
+        r <= kernel_width,
+        105 / (32 * np.pi * kernel_width**7) * (kernel_width**2 - r**2)**2,
+        0,
+    )
 
 kernel3d = np.vectorize(kernel3d, otypes=[float], excluded=[1])
 
 
 @np.vectorize
 def kernel3d_hard(r, kernel_width):
-    if r <= kernel_width:
-        return 3 / (4 * np.pi * kernel_width**3)
-    else:
-        return 0
+    return np.where(
+        r <= kernel_width,
+        3 / (4 * np.pi * kernel_width**3),
+        0,
+    )
+
 
 def kernel_depthavg(r, kernel_width):
     """Depth-average of the 3D Lucy kernel, where r is the radial
     coordinate in cylindricals, not sphericals.
     """
-    if r <= kernel_width:
-        return 7 / (4 * np.pi * kernel_width**7) * (kernel_width**2 - r**2)**2.5
-    else:
-        return 0
+    return np.where(
+        r <= kernel_width,
+        7 / (4 * np.pi * kernel_width**7) * (kernel_width**2 - r**2)**2.5,
+        0,
+    )
+
 
 kernel_depthavg = np.vectorize(kernel_depthavg, otypes=[float], excluded=[1])
 
 
 def kernel_depthavg_hard(r, kernel_width):
-    if r <= kernel_width:
-        return 3 / (2 * np.pi * kernel_width**3) * (kernel_width**2 - r**2)**0.5
-    else:
-        return 0
+    return np.where(
+        r <= kernel_width,
+        3 / (2 * np.pi * kernel_width**3) * (kernel_width**2 - r**2)**0.5,
+        0,
+    )
+
 
 kernel_depthavg_hard = np.vectorize(kernel_depthavg_hard, otypes=[float], excluded=[1])
 
@@ -87,13 +90,7 @@ def mask(
     return (x0 - dx < x < x0 + dx) and (y0 - dy < y < y0 + dy)
 
 
-mask = np.vectorize(mask)
-mask.excluded.add(2)
-mask.excluded.add(3)
-mask.excluded.add(4)
-mask.excluded.add(5)
-mask.excluded.add(6)
-mask.excluded.add(7)
+mask = np.vectorize(mask, excluded=[2, 3, 4, 5, 6, 7])
 
 
 def cg_data(df, x, y, kernel_width, kern=kernel):
@@ -129,10 +126,7 @@ def cg_data(df, x, y, kernel_width, kern=kernel):
 
     return rho, px, py
 
-cg_data = np.vectorize(cg_data)
-cg_data.excluded.add(0)
-cg_data.excluded.add(3)
-cg_data.excluded.add(4)
+cg_data = np.vectorize(cg_data, excluded=[0, 3, 4])
 
 cg_data = timed("coarse-graining")(cg_data)
 
@@ -164,11 +158,7 @@ def cg_general(df, x, y, kernel_width, kern=kernel):
     kers = kern(dists, kernel_width)
     return np.sum(kers * df2.q)
 
-cg_general = np.vectorize(cg_general)
-cg_general.excluded.add(0)
-cg_general.excluded.add(3)
-cg_general.excluded.add(4)
-
+cg_general = np.vectorize(cg_general, excluded=[0, 3, 4])
 cg_general = timed("coarse-graining")(cg_general)
 
 
@@ -189,9 +179,7 @@ def cg_data3d(df, x, y, z, kernel_width):
 
     return rho, px, py, pz
 
-cg_data3d = np.vectorize(cg_data3d)
-cg_data3d.excluded.add(0)
-cg_data3d.excluded.add(4)
+cg_data3d = np.vectorize(cg_data3d, excluded=[0, 4])
 
 
 def cg_general3d(df, x, y, z, kernel_width):
@@ -219,10 +207,8 @@ def cg_general3d(df, x, y, z, kernel_width):
     kers = kernel3d(dists, kernel_width)
     return np.sum(kers * df2.q)
 
-cg_general3d = np.vectorize(cg_general3d)
-cg_general3d.excluded.add(0)
-cg_general3d.excluded.add(4)
 
+cg_general3d = np.vectorize(cg_general3d, excluded=[0, 4])
 cg_general3d = timed("coarse-graining")(cg_general3d)
 
 
@@ -245,11 +231,8 @@ def x_front(df, y, dy, periodicity=None, percentile=95):
     else:
         return 0
 
-x_front = np.vectorize(x_front)
-x_front.excluded.add(0)
-x_front.excluded.add(2)
-x_front.excluded.add(3)
-x_front.excluded.add(4)
+
+x_front = np.vectorize(x_front, excluded=[0, 2, 3, 4])
 x_front = timed("calculating the front position")(x_front)
 
 
@@ -272,9 +255,5 @@ def depth(df, x, y, kernel_width, period_y=None, percentile=95):
     else:
         return 0
 
-depth = np.vectorize(depth)
-depth.excluded.add(0)
-depth.excluded.add(3)
-depth.excluded.add(4)
-depth.excluded.add(5)
+depth = np.vectorize(depth, excluded=[0, 3, 4, 5])
 # depth = timed("calculating the depth")(depth)
