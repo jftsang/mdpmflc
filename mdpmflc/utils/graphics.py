@@ -21,7 +21,10 @@ from mdpmflc.utils.read_file import (
 
 
 def create_data_figure(
-    data_fn, vels=None, samplesize=20000, fig_width=7, kernel_width=0.4
+    data_fn, vels=None, samplesize=None,
+    fig_width=7,
+    fig_height=None,
+    kernel_width=0.4
 ):
     """Produce a plot of the particle positions etc. from a .data file.
 
@@ -51,7 +54,11 @@ def create_data_figure(
         except ValueError:
             pass
 
-    fig_height = (ymax - ymin) / (xmax - xmin) * fig_width - 0.0
+    if 'z' in to_plot_data_df.columns:
+        to_plot_data_df = to_plot_data_df.sort_values('z')
+
+    if fig_height is None:
+        fig_height = (ymax - ymin) / (xmax - xmin) * fig_width - 0.0
     fig = Figure(figsize=(fig_width, fig_height))
     ax = fig.add_subplot(1, 1, 1)
 

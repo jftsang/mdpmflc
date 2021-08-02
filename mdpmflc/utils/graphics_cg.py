@@ -114,3 +114,32 @@ def plot_cg_field(data_fn, field, kernel_width=0.4, **kwargs):
     else:
         raise NotImplementedError
     return plot_field(xg, yg, field_g, **kwargs)
+
+
+def plot_all_cg_fields(data_fn, kernel_width=0.4, **kwargs) -> Dict[str, Figure]:
+    """As above, but produce plots of all fields.
+
+    Arguments:
+        data_fn:
+        kernel_width: Radius of coarse-graining kernels
+
+    Returns:
+        figs: A dictionary of figures
+    """
+    data_df, dimensions, headline = read_data_file(data_fn)
+    num, time, xmin, ymin, zmin, xmax, ymax, zmax = headline
+    xmax = 40
+
+    # xs, ys = np.linspace(xmin, xmax, 100), np.linspace(ymin, ymax, 100)
+    xs, ys = np.linspace(xmin, xmax), np.linspace(ymin, ymax)
+    xg, yg = np.meshgrid(xs, ys)
+
+    rhog, pxg, pyg = cg_data(data_df, xg, yg, kernel_width=kernel_width)
+
+    return {
+        "rho": plot_field(xg, yg, rhog, **kwargs),
+        "px": plot_field(xg, yg, pxg, **kwargs),
+        "py": plot_field(xg, yg, pyg, **kwargs),
+        "u": plot_field(xg, yg, pxg / rhog, **kwargs),
+        "v": plot_field(xg, yg, pyg / rhog, **kwargs),
+    }
