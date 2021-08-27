@@ -1,14 +1,14 @@
 import os
+
 import flask
 from flask import Response, render_template
 
-from mdpmflc import SRCDIR, app
+from mdpmflc import SRCDIR
 from mdpmflc.utils.driver import get_config_fields
 from mdpmflc.utils.listings import get_available_series
 
 
-@app.route("/driver/<dri>/")
-def driverpage(dri):
+def driver_page(dri):
     """A page that shows information about a driver, with links to the
     driver's source, and a form for starting up a new simulation."""
     return render_template("driver.html",
@@ -17,7 +17,6 @@ def driverpage(dri):
                            available_series=get_available_series())
 
 
-@app.route("/driver/<dri>/source")
 def driver_source(dri):
     """A page that shows a driver's source code."""
     # Read the source file
@@ -41,7 +40,6 @@ def driver_source(dri):
                            pars_fields=pars_fields)
 
 
-@app.route("/driver/<dri>/source/raw")
 def driver_source_raw(dri):
     """Return the driver's source code as a raw .cpp file."""
     src_fn = os.path.join(SRCDIR, dri + ".cpp")
@@ -49,7 +47,6 @@ def driver_source_raw(dri):
     return Response(src_f.read(), mimetype='text/plain')
 
 
-@app.route("/driver/<dri>/exampleconfig")
 def driver_source_exampleconfig(dri):
     """Return the example config file."""
     example_config_fn = os.path.join(SRCDIR, dri + ".example.config")
@@ -60,3 +57,10 @@ def driver_source_exampleconfig(dri):
     except OSError:
         return Response(404)
 
+
+driver_urls = {
+    "/driver/<dri>/": driver_page,
+    "/driver/<dri>/source": driver_source,
+    "/driver/<dri>/source/raw": driver_source_raw,
+    "/driver/<dri>/exampleconfig": driver_source_exampleconfig,
+}

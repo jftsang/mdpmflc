@@ -2,17 +2,16 @@
 simulation.
 """
 import os
+
 from flask import render_template, Response
 
-from mdpmflc import app
-from mdpmflc.errorhandlers import SimulationNotFoundError
+from mdpmflc.exceptions import SimulationNotFoundError
 from mdpmflc.model.simulation import Simulation
 from mdpmflc.utils.read_file import (
     read_data_file,
 )
 
 
-@app.route('/results/<sername>/<simname>/')
 def showsim(sername, simname):
     """Serve a page showing some summary statistics of this simulation,
     as well as links to more details such as individual files, and logs.
@@ -34,30 +33,24 @@ def showsim(sername, simname):
                            mdi=max_data_index, mfi=max_fstat_index, ind=0)
 
 
-@app.route('/results/<sername>/<simname>/config')
-@app.route('/results/<sername>/<simname>/config/raw')
 def showconfig(sername, simname):
     sim = Simulation(sername, simname)
     with open(sim.config_fn(), "r") as config_f:
         return Response(config_f.read(), mimetype="text/plain")
 
 
-@app.route('/results/<sername>/<simname>/log/')
-@app.route('/results/<sername>/<simname>/log/out')
 def showlogout(sername, simname):
     sim = Simulation(sername, simname)
     with open(sim.out_fn(), "r") as out_f:
         return Response(out_f.read(), mimetype="text/plain")
 
 
-@app.route('/results/<sername>/<simname>/log/err')
 def showlogerr(sername, simname):
     sim = Simulation(sername, simname)
     with open(sim.err_fn(), "r") as err_f:
         return Response(err_f.read(), mimetype="text/plain")
 
 
-@app.route('/results/<sername>/<simname>/data/<ind>')
 def showdatafile(sername, simname, ind):
     sim = Simulation(sername, simname)
     simstatus = sim.status()
@@ -89,12 +82,10 @@ def showdatafile(sername, simname, ind):
                                mdi=max_data_index)
 
 
-@app.route('/results/<sername>/<simname>/fstat/<ind>')
 def showfstatfile(sername, simname, ind):
-    return None
+    raise NotImplementedError
 
 
-@app.route("/results/<sername>/<simname>/plot/<ind>")
 def showdataplot_page(sername, simname, ind):
     """A page that contains a .data file's plot."""
     sim = Simulation(sername, simname)
@@ -120,3 +111,16 @@ def showdataplot_page(sername, simname, ind):
 
     else:
         raise ValueError("Number of dimensions should be 2 or 3.")
+
+
+simulation_urls = {
+    "/results/<sername>/<simname>/": showsim,
+    "/results/<sername>/<simname>/config": showconfig,
+    "/results/<sername>/<simname>/config/raw": showconfig,
+    "/results/<sername>/<simname>/log/": showlogout,
+    "/results/<sername>/<simname>/log/out": showlogout,
+    "/results/<sername>/<simname>/log/err": showlogerr,
+    "/results/<sername>/<simname>/data/<ind>": showdatafile,
+    "/results/<sername>/<simname>/fstat/<ind>": showfstatfile,
+    "/results/<sername>/<simname>/plot/<ind>": showdataplot_page,
+}

@@ -17,10 +17,9 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, ImageMagickWriter
 from matplotlib.backends.backend_agg import FigureCanvas, FigureCanvasAgg
 
-from mdpmflc import CACHEDIR, app
+from mdpmflc import CACHEDIR
 from mdpmflc.model.simulation import Simulation
 from mdpmflc.utils.graphics import create_data_figure, create_ene_figure
-from mdpmflc.utils.graphics_cg import plot_depth
 from mdpmflc.utils.anims import create_animation
 
 logging.getLogger().setLevel(logging.INFO)
@@ -41,7 +40,6 @@ def need_to_regenerate(target, sources):
     return False
 
 
-@app.route("/plots/<sername>/<simname>/<ind>/data")
 def showdataplot_fig(sername, simname, ind):
     """A plot of a .data file, in PNG format by default."""
     sim = Simulation(sername, simname)
@@ -85,7 +83,6 @@ def showdataplot_fig(sername, simname, ind):
         return Response(dataplot_f.read(), mimetype=MIMETYPE[form])
 
 
-@app.route("/plots/<sername>/<simname>/ene")
 def showeneplot_png(sername, simname):
     """A plot of a .ene file, in PNG format."""
     sim = Simulation(sername, simname)
@@ -105,7 +102,6 @@ def showeneplot_png(sername, simname):
         return Response(eneplot_f.read(), mimetype='image/png')
 
 
-@app.route("/plots/<sername>/<simname>/animate")
 def anim(sername, simname):
     sim = Simulation(sername, simname)
     # https://github.com/matplotlib/matplotlib/issues/16965
@@ -137,3 +133,10 @@ def anim(sername, simname):
     else:
         with open(anim_fn, "rb") as anim_f:
             return Response(anim_f.read(), mimetype="image/gif")
+
+
+plots_urls = {
+    "/plots/<sername>/<simname>/<ind>/data": showdataplot_fig,
+    "/plots/<sername>/<simname>/ene": showeneplot_png,
+    "/plots/<sername>/<simname>/animate": anim,
+}

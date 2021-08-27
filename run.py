@@ -1,3 +1,3 @@
-import mdpmflc.mdpmflc
+import mdpmflc.app
 
-mdpmflc.mdpmflc.start_app()
+mdpmflc.app.start_app()

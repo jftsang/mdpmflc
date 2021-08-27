@@ -1,18 +1,13 @@
 import logging
-import os
-import subprocess
 
 import flask
 from flask import render_template
 
-from mdpmflc import app
 from mdpmflc.utils.jobs import queue_job
-
 
 logging.getLogger().setLevel(logging.INFO)
 
 
-@app.route("/queue", methods=["POST"])
 def queue_a_simulation():
     """Receive a request for a simulation and queue it."""
     # https://code.luasoftware.com/tutorials/flask/flask-get-request-parameters-get-post-and-json/

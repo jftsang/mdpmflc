@@ -1,46 +1,24 @@
-from mdpmflc import app
-from flask import Response, render_template
+from flask import render_template
+
+from mdpmflc.exceptions import SeriesNotFoundError, SimulationNotFoundError, SimulationAlreadyExistsError, \
+    DriverNotFoundError
 
 
-class DriverNotFoundError(Exception):
-    pass
-
-
-class SeriesNotFoundError(Exception):
-    pass
-
-
-class SimulationNotFoundError(Exception):
-    pass
-
-
-class SimulationAlreadyExistsError(Exception):
-    pass
-
-
-class IllegalSimulationNameError(Exception):
-    pass
-
-
-@app.errorhandler(DriverNotFoundError)
-def driver_not_found(error):
+def driver_not_found_handler(error):
     return render_template('errors/drivernotfound.html', driver=str(error)), 500
 
 
-@app.errorhandler(SeriesNotFoundError)
-def series_not_found(error):
+def series_not_found_handler(error):
     return render_template('errors/seriesnotfound.html', sername=str(error)), 404
 
 
-@app.errorhandler(SimulationNotFoundError)
-def simulation_not_found(error):
+def simulation_not_found_handler(error):
     return render_template('errors/simulationnotfound.html',
                            sername=error.args[0],
                            simname=error.args[1]), 404
 
 
-@app.errorhandler(SimulationAlreadyExistsError)
-def simulation_already_exists(error):
+def simulation_already_exists_handler(error):
     return render_template('errors/simulationalreadyexists.html',
                            sername=error.args[0],
                            simname=error.args[1],
@@ -48,7 +26,15 @@ def simulation_already_exists(error):
                            message=str(error)), 409
 
 
-@app.errorhandler(404)
-def not_found(error):
+def not_found_handler(error):
     """Catch-all 404 when a more appropriate error can't be given."""
     return render_template('errors/404.html'), 404
+
+
+error_handlers = {
+    DriverNotFoundError: driver_not_found_handler,
+    SeriesNotFoundError: series_not_found_handler,
+    SimulationNotFoundError: simulation_not_found_handler,
+    SimulationAlreadyExistsError: simulation_already_exists_handler,
+    404: not_found_handler,
+}

@@ -2,10 +2,8 @@ import os
 
 from flask import render_template
 from mdpmflc import SRCDIR
-from mdpmflc import app
 
 
-@app.route("/help")
 def help_page():
     """A page that shows help."""
     # src_fn = os.path.join(SRCDIR, "MdpmflcTutorial" + ".cpp")

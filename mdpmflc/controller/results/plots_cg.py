@@ -16,15 +16,15 @@ from flask import Response
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
-from mdpmflc import CACHEDIR, app
+from mdpmflc import CACHEDIR
 from mdpmflc.controller.results.plots import need_to_regenerate, MIMETYPE
 from mdpmflc.model.simulation import Simulation
 from mdpmflc.utils.graphics_cg import plot_depth, plot_cg_field
 
 logging.getLogger().setLevel(logging.INFO)
 
-@app.route("/plots/<sername>/<simname>/<ind>/<field>")
-def showdepthplot_fig(sername, simname, ind, field):
+
+def cg_figure_view(sername, simname, ind, field):
     if field not in {"depth", "rho", "px", "py", "u", "v"}:
         raise NotImplementedError
 
