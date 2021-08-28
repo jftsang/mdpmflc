@@ -20,7 +20,7 @@ urls_dictionaries = [driver_urls, simulation_urls, raw_files_urls, plots_urls]
 
 for urls in urls_dictionaries:
     for url in urls:
-        app.add_url_rule(url, urls[url])
+        app.add_url_rule(url, view_func=urls[url])
 
 app.add_url_rule("/results/", view_func=redirect_to_main)
 app.add_url_rule("/results/<sername>/", view_func=show_series)

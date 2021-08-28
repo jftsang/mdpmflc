@@ -12,7 +12,7 @@ from mdpmflc.utils.read_file import (
 )
 
 
-def showsim(sername, simname):
+def simulation_view(sername, simname):
     """Serve a page showing some summary statistics of this simulation,
     as well as links to more details such as individual files, and logs.
     """
@@ -114,7 +114,7 @@ def showdataplot_page(sername, simname, ind):
 
 
 simulation_urls = {
-    "/results/<sername>/<simname>/": showsim,
+    "/results/<sername>/<simname>/": simulation_view,
     "/results/<sername>/<simname>/config": showconfig,
     "/results/<sername>/<simname>/config/raw": showconfig,
     "/results/<sername>/<simname>/log/": showlogout,
