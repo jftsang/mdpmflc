@@ -9,9 +9,11 @@
 <body>
 
 <div id="pageheading" style="text-align:center;">
-    <h1>series <a href="/results/{{sername}}">{{sername}}</a>, simulation <a href="/results/{{sername}}/{{simname}}">{{simname}}</a></h1>
+    <h1>series <a href="{{ url_for('series_views.series_view', sername=sername) }}">{{sername}}</a>,
+        simulation <a href="{{ url_for('simulation_views.simulation_view', sername=sername, simname=simname) }}">{{simname}}</a></h1>
     <h2>at <i>t</i> = {{time}}, index {{ind}}</h2>
 </div>
+
 
 {% include 'sliderform.html' %}
 

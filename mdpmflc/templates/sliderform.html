@@ -61,7 +61,7 @@
 
         document.getElementById("ene_page").onclick = function()
         {
-            formlf.action = "{{ url_for('ene_plot_figview', sername=sername, simname=simname) }}"
+            formlf.action = "{{ url_for('plots_figviews.ene_plot_figview', sername=sername, simname=simname) }}"
             formlf.submit();
         }
 

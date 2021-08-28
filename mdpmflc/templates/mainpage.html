@@ -24,8 +24,9 @@
     <h2>Available simulation series results</h2>
     <p>
     <ul>
-    {% for ser in available_series %}
-        <li><a href="/results/{{ser}}">{{ser}}</a></li> 
+    {% for sername in available_series %}
+        <li><a href="{{ url_for('series_views.series_view', sername=sername) }}">
+            {{sername}}</a></li>
     {% endfor %}
     </ul>
     </p>

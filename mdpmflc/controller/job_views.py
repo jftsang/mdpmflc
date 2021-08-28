@@ -1,14 +1,17 @@
 import logging
 
 import flask
-from flask import render_template
+from flask import render_template, Blueprint
 
 from mdpmflc.utils.jobs import queue_job
 
 logging.getLogger().setLevel(logging.INFO)
 
+job_views = Blueprint('job_views', __name__)
 
-def queue_a_simulation():
+
+@job_views.route("/queue", methods=["POST"])
+def queue_simulation():
     """Receive a request for a simulation and queue it."""
     # https://code.luasoftware.com/tutorials/flask/flask-get-request-parameters-get-post-and-json/
     if flask.request.method == "GET":

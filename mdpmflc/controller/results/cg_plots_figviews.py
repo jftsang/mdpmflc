@@ -5,7 +5,7 @@ import os
 import moviepy.editor as mp
 
 import flask
-from flask import Response
+from flask import Response, Blueprint
 
 # https://stackoverflow.com/a/50728936/12695048
 # from matplotlib.figure import Figure
@@ -17,13 +17,17 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 from mdpmflc import CACHEDIR
-from mdpmflc.controller.results.plots import need_to_regenerate, MIMETYPE
+from mdpmflc.controller.results.plots_figviews import need_to_regenerate, MIMETYPE
 from mdpmflc.model.simulation import Simulation
 from mdpmflc.utils.graphics_cg import plot_depth, plot_cg_field
 
 logging.getLogger().setLevel(logging.INFO)
 
 
+cg_plots_figviews = Blueprint('cg_plots_figviews', __name__, )
+
+
+@cg_plots_figviews.route("/<sername>/<simname>/<ind>/<field>")
 def cg_figure_view(sername, simname, ind, field):
     if field not in {"depth", "rho", "px", "py", "u", "v"}:
         raise NotImplementedError

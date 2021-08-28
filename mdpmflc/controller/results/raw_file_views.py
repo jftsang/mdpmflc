@@ -1,11 +1,13 @@
 """Endpoints that serve up raw output files."""
 import os
 
-from flask import Response
+from flask import Response, Blueprint
 
 from mdpmflc.model.simulation import Simulation
 
+raw_file_views = Blueprint('raw_file_views', __name__, )
 
+@raw_file_views.route('/<sername>/<simname>/data/<ind>/raw')
 def serve_data_raw(sername, simname, ind):
     """Serve a raw .data. file."""
     sim = Simulation(sername, simname)
@@ -14,6 +16,7 @@ def serve_data_raw(sername, simname, ind):
     return Response(dat_f.read(), mimetype="text/plain")
 
 
+@raw_file_views.route('/<sername>/<simname>/fstat/<ind>/raw')
 def serve_fstat_raw(sername, simname, ind):
     """Serve a raw .fstat. file."""
     sim = Simulation(sername, simname)
@@ -22,6 +25,7 @@ def serve_fstat_raw(sername, simname, ind):
     return Response(fstat_f.read(), mimetype="text/plain")
 
 
+@raw_file_views.route('/<sername>/<simname>/ene/raw')
 def serve_ene_raw(sername, simname):
     """Serve a raw .ene file."""
     sim = Simulation(sername, simname)
@@ -30,6 +34,7 @@ def serve_ene_raw(sername, simname):
         return Response(ene_f.read(), mimetype="text/plain")
 
 
+@raw_file_views.route('/<sername>/<simname>/restart/<ind>/raw')
 def serve_restart_raw(sername, simname, ind):
     """Serve a raw .restart. file."""
     sim = Simulation(sername, simname)
@@ -39,11 +44,3 @@ def serve_restart_raw(sername, simname, ind):
 
     restart_f = open(restart_fn, "r")
     return Response(restart_f.read(), mimetype="text/plain")
-
-
-raw_files_urls = {
-    "/results/<sername>/<simname>/data/<ind>/raw": serve_data_raw,
-    "/results/<sername>/<simname>/fstat/<ind>/raw": serve_fstat_raw,
-    "/results/<sername>/<simname>/ene/raw": serve_ene_raw,
-    "/results/<sername>/<simname>/restart/<ind>/raw": serve_restart_raw,
-}

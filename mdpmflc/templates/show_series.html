@@ -13,7 +13,7 @@
     <h2>Available simulations</h2>
     <ul>
     {% for sim in available_simulations %}
-        <li><a href="{{ url_for('simulation_view', sername=sername, simname=sim) }}">{{sim}}</a></li>
+        <li><a href="{{ url_for('simulation_views.simulation_view', sername=sername, simname=sim) }}">{{sim}}</a></li>
     {% endfor %}
     </ul>
 

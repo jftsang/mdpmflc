@@ -5,7 +5,7 @@ import os
 import moviepy.editor as mp
 
 import flask
-from flask import Response
+from flask import Response, Blueprint
 
 # https://stackoverflow.com/a/50728936/12695048
 # from matplotlib.figure import Figure
@@ -40,6 +40,9 @@ def need_to_regenerate(target, sources):
     return False
 
 
+plots_figviews = Blueprint('plots_figviews', __name__, )
+
+@plots_figviews.route("/<sername>/<simname>/<ind>/data")
 def data_plot_figview(sername, simname, ind):
     """A plot of a .data file, in PNG format by default."""
     sim = Simulation(sername, simname)
@@ -83,6 +86,7 @@ def data_plot_figview(sername, simname, ind):
         return Response(dataplot_f.read(), mimetype=MIMETYPE[form])
 
 
+@plots_figviews.route("/<sername>/<simname>/ene")
 def ene_plot_figview(sername, simname):
     """A plot of a .ene file, in PNG format."""
     sim = Simulation(sername, simname)
@@ -102,6 +106,7 @@ def ene_plot_figview(sername, simname):
         return Response(eneplot_f.read(), mimetype='image/png')
 
 
+@plots_figviews.route("/<sername>/<simname>/animate")
 def anim(sername, simname):
     sim = Simulation(sername, simname)
     # https://github.com/matplotlib/matplotlib/issues/16965
@@ -133,10 +138,3 @@ def anim(sername, simname):
     else:
         with open(anim_fn, "rb") as anim_f:
             return Response(anim_f.read(), mimetype="image/gif")
-
-
-plots_urls = {
-    "/plots/<sername>/<simname>/<ind>/data": data_plot_figview,
-    "/plots/<sername>/<simname>/ene": ene_plot_figview,
-    "/plots/<sername>/<simname>/animate": anim,
-}

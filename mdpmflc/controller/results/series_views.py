@@ -1,17 +1,16 @@
 """Pages that show listings of series and simulations.
 """
 import flask
-from flask import render_template
+from flask import render_template, Blueprint
 
 from mdpmflc.exceptions import SeriesNotFoundError
 from mdpmflc.utils.listings import get_available_simulations
 
-
-def redirect_to_main():
-    return flask.redirect('/')
+series_views = Blueprint('series_views', __name__, )
 
 
-def show_series(sername):
+@series_views.route("/<sername>")
+def series_view(sername):
     """List the simulations belonging to a given series."""
     available_simulations = get_available_simulations(sername)
     if available_simulations is None:

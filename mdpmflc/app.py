@@ -1,39 +1,45 @@
 #!/usr/bin/env python3
 from flask import Flask
 
-from .controller.driver.view_driver import driver_urls
-from .controller.help import help_page
-from .controller.job.start_job import queue_a_simulation
-from .controller.miscPages import main_page
-from .controller.results.listing import show_series, redirect_to_main
-from .controller.results.plots import plots_urls
-from .controller.results.plots_cg import cg_figure_view
-from .controller.results.raw import raw_files_urls
-from .controller.results.simulation import simulation_urls
+from mdpmflc.controller.driver_views import driver_views
+from mdpmflc.controller.job_views import job_views
+from .controller.results.cg_plots_figviews import cg_plots_figviews
+from .controller.results.plots_figviews import plots_figviews
+from .controller.results.raw_file_views import raw_file_views
+from .controller.results.series_views import series_views
+from .controller.results.simulation_views import simulation_views
+from .controller.static_views import static_views
 from .errorhandlers import error_handlers
 
 app = Flask(__name__)
-app.add_url_rule("/", view_func=main_page)
-app.add_url_rule("/help", view_func=help_page)
 
-urls_dictionaries = [driver_urls, simulation_urls, raw_files_urls, plots_urls]
-
-for urls in urls_dictionaries:
-    for url in urls:
-        app.add_url_rule(url, view_func=urls[url])
-
-app.add_url_rule("/results/", view_func=redirect_to_main)
-app.add_url_rule("/results/<sername>/", view_func=show_series)
-
-app.add_url_rule("/plots/<sername>/<simname>/<ind>/<field>", view_func=cg_figure_view)
-
-app.add_url_rule("/queue", view_func=queue_a_simulation, methods=["POST"])
+app.register_blueprint(static_views, url_prefix="/")
+app.register_blueprint(driver_views, url_prefix="/driver")
+app.register_blueprint(series_views, url_prefix="/results")
+app.register_blueprint(simulation_views, url_prefix="/results")
+app.register_blueprint(raw_file_views, url_prefix="/results")
+app.register_blueprint(plots_figviews, url_prefix="/plots")
+app.register_blueprint(cg_plots_figviews, url_prefix="/plots")
+app.register_blueprint(job_views, url_prefix="/jobs")
 
 for error in error_handlers:
     app.register_error_handler(error, error_handlers[error])
+
+
+# Be permissive about trailing slashes https://stackoverflow.com/a/40365514
+app.url_map.strict_slashes = False
+
+
+@app.before_request
+def clear_trailing_slashes():
+    from flask import redirect, request
+
+    rp = request.path
+    if rp != '/' and rp.endswith('/'):
+        return redirect(rp[:-1])
 
 # db_engine = create_engine(f"sqlite:///{SQLITE_FILE}", echo=True)
 
 
 def start_app():
-    app.run(host="0.0.0.0", port="5000", debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

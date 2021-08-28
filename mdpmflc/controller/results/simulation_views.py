@@ -2,8 +2,7 @@
 simulation.
 """
 import os
-
-from flask import render_template, Response
+from flask import render_template, Response, Blueprint
 
 from mdpmflc.exceptions import SimulationNotFoundError
 from mdpmflc.model.simulation import Simulation
@@ -11,7 +10,10 @@ from mdpmflc.utils.read_file import (
     read_data_file,
 )
 
+simulation_views = Blueprint('simulation_views', __name__, )
 
+
+@simulation_views.route('/<sername>/<simname>')
 def simulation_view(sername, simname):
     """Serve a page showing some summary statistics of this simulation,
     as well as links to more details such as individual files, and logs.
@@ -33,24 +35,30 @@ def simulation_view(sername, simname):
                            mdi=max_data_index, mfi=max_fstat_index, ind=0)
 
 
+@simulation_views.route('/<sername>/<simname>/config')
+@simulation_views.route('/<sername>/<simname>/config/raw')
 def showconfig(sername, simname):
     sim = Simulation(sername, simname)
     with open(sim.config_fn(), "r") as config_f:
         return Response(config_f.read(), mimetype="text/plain")
 
 
+@simulation_views.route('/<sername>/<simname>/log')
+@simulation_views.route('/<sername>/<simname>/log/out')
 def showlogout(sername, simname):
     sim = Simulation(sername, simname)
     with open(sim.out_fn(), "r") as out_f:
         return Response(out_f.read(), mimetype="text/plain")
 
 
+@simulation_views.route('/<sername>/<simname>/log/err')
 def showlogerr(sername, simname):
     sim = Simulation(sername, simname)
     with open(sim.err_fn(), "r") as err_f:
         return Response(err_f.read(), mimetype="text/plain")
 
 
+@simulation_views.route('/<sername>/<simname>/data/<ind>')
 def showdatafile(sername, simname, ind):
     sim = Simulation(sername, simname)
     simstatus = sim.status()
@@ -82,10 +90,12 @@ def showdatafile(sername, simname, ind):
                                mdi=max_data_index)
 
 
+@simulation_views.route('/<sername>/<simname>/fstat/<ind>')
 def showfstatfile(sername, simname, ind):
     raise NotImplementedError
 
 
+@simulation_views.route("/<sername>/<simname>/plot/<ind>")
 def showdataplot_page(sername, simname, ind):
     """A page that contains a .data file's plot."""
     sim = Simulation(sername, simname)
@@ -111,16 +121,3 @@ def showdataplot_page(sername, simname, ind):
 
     else:
         raise ValueError("Number of dimensions should be 2 or 3.")
-
-
-simulation_urls = {
-    "/results/<sername>/<simname>/": simulation_view,
-    "/results/<sername>/<simname>/config": showconfig,
-    "/results/<sername>/<simname>/config/raw": showconfig,
-    "/results/<sername>/<simname>/log/": showlogout,
-    "/results/<sername>/<simname>/log/out": showlogout,
-    "/results/<sername>/<simname>/log/err": showlogerr,
-    "/results/<sername>/<simname>/data/<ind>": showdatafile,
-    "/results/<sername>/<simname>/fstat/<ind>": showfstatfile,
-    "/results/<sername>/<simname>/plot/<ind>": showdataplot_page,
-}
