@@ -40,7 +40,7 @@ def need_to_regenerate(target, sources):
     return False
 
 
-def showdataplot_fig(sername, simname, ind):
+def data_plot_figview(sername, simname, ind):
     """A plot of a .data file, in PNG format by default."""
     sim = Simulation(sername, simname)
     form = flask.request.values.get("form")
@@ -83,7 +83,7 @@ def showdataplot_fig(sername, simname, ind):
         return Response(dataplot_f.read(), mimetype=MIMETYPE[form])
 
 
-def showeneplot_png(sername, simname):
+def ene_plot_figview(sername, simname):
     """A plot of a .ene file, in PNG format."""
     sim = Simulation(sername, simname)
     ene_fn = sim.ene_fn()
@@ -136,7 +136,7 @@ def anim(sername, simname):
 
 
 plots_urls = {
-    "/plots/<sername>/<simname>/<ind>/data": showdataplot_fig,
-    "/plots/<sername>/<simname>/ene": showeneplot_png,
+    "/plots/<sername>/<simname>/<ind>/data": data_plot_figview,
+    "/plots/<sername>/<simname>/ene": ene_plot_figview,
     "/plots/<sername>/<simname>/animate": anim,
 }

@@ -61,7 +61,7 @@
 
         document.getElementById("ene_page").onclick = function()
         {
-            formlf.action = '/results/{{sername}}/{{simname}}/plotene';
+            formlf.action = "{{ url_for('ene_plot_figview', sername=sername, simname=simname) }}"
             formlf.submit();
         }
 
