@@ -16,10 +16,44 @@
 
 {% include 'sliderform.html' %}
 
+<label for="plottype">Plot type</label>
+<select id="plottype">
+    <option value=""></option>
+    <option value="data">data</option>
+    <option value="depth">depth</option>
+    <option value="rho">rho</option>
+    <option value="px">px</option>
+    <option value="py">py</option>
+    <option value="u">u</option>
+    <option value="v">v</option>
+</select>
 
-<div>
-<img class="marginauto" src="/plots/{{sername}}/{{simname}}/{{ind}}/data?form=png"/>
+<!--
+<div id="dataplot_div">
+<img id="dataplot" class="marginauto" src="/plots/{{sername}}/{{simname}}/{{ind}}/data?form=png"/>
 </div>
+-->
+
+
+<div id="plot_div">
+<img id="plot" class="marginauto"/>
+</div>
+
+<script>
+    var plottype_sel = document.getElementById("plottype");
+    var img = document.getElementById("plot");
+
+    plottype_sel.oninput = function()
+    {
+        img.removeAttribute('src');
+        if (plottype_sel.value != "") {
+            img.src = "/plots/{{sername}}/{{simname}}/{{ind}}/" + plottype_sel.value;
+        }
+    }
+
+
+</script>
+
 
 </body>
 </html>
