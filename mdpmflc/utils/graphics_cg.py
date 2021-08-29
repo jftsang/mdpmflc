@@ -83,42 +83,6 @@ def plot_depth(
     return plot_field(xg, yg, depth_g, **kwargs)
 
 
-@timed("creating plot for the field {field}")
-def plot_cg_field(data_fn, field, kernel_width=0.4, **kwargs):
-    """Produce a plot of a field from a .data file.
-
-    Arguments:
-        data_fn:
-        field: One of 'rho', 'px', 'py', 'u', or 'v'
-        kernel_width: Radius of coarse-graining kernels
-
-    Returns:
-        fig: An instance of plt.Figure
-    """
-    data_df, dimensions, headline = read_data_file(data_fn)
-    num, time, xmin, ymin, zmin, xmax, ymax, zmax = headline
-    xmax = 40
-
-    xs, ys = np.linspace(xmin, xmax), np.linspace(ymin, ymax)
-    xg, yg = np.meshgrid(xs, ys)
-
-    rhog, pxg, pyg = cg_data(data_df, xg, yg, kernel_width=kernel_width)
-
-    if field == "rho":
-        field_g = rhog
-    elif field == "px":
-        field_g = pxg
-    elif field == "py":
-        field_g = pyg
-    elif field == "u":
-        field_g = pxg / rhog
-    elif field == "v":
-        field_g = pyg / rhog
-    else:
-        raise NotImplementedError
-    return plot_field(xg, yg, field_g, **kwargs)
-
-
 @timed("creating plots for all cg fields of {data_fn}")
 def plot_all_cg_fields(data_fn, kernel_width=0.4, **kwargs) -> Dict[str, Figure]:
     """As above, but produce plots of all fields.
