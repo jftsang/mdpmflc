@@ -10,6 +10,7 @@ from mdpmflc.utils.cg import (
     x_front,
     depth
 )
+from mdpmflc.utils.decorators import timed
 from mdpmflc.utils.read_file import read_data_file
 
 
@@ -49,6 +50,7 @@ def plot_field(
     return fig
 
 
+@timed("creating plot of depths of {data_fn}")
 def plot_depth(
     data_fn,
     kernel_width=0.4,
@@ -81,6 +83,7 @@ def plot_depth(
     return plot_field(xg, yg, depth_g, **kwargs)
 
 
+@timed("creating plot for the field {field}")
 def plot_cg_field(data_fn, field, kernel_width=0.4, **kwargs):
     """Produce a plot of a field from a .data file.
 
@@ -116,6 +119,7 @@ def plot_cg_field(data_fn, field, kernel_width=0.4, **kwargs):
     return plot_field(xg, yg, field_g, **kwargs)
 
 
+@timed("creating plots for all cg fields of {data_fn}")
 def plot_all_cg_fields(data_fn, kernel_width=0.4, **kwargs) -> Dict[str, Figure]:
     """As above, but produce plots of all fields.
 

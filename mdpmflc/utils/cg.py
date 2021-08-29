@@ -1,5 +1,7 @@
+from functools import reduce
 from typing import Optional
 import numpy as np
+from numpy import bitwise_and
 
 from mdpmflc.utils.decorators import timed
 
@@ -93,6 +95,9 @@ def mask(
 mask = np.vectorize(mask, excluded=[2, 3, 4, 5, 6, 7])
 
 
+
+@timed("coarse-graining with {f.__name__}")
+@(lambda f: np.vectorize(f, excluded=[0, 3, 4]))
 def cg_data(df, x, y, kernel_width, kern=kernel):
     """Calculate the 2D coarse-grained fields at the specified point
     (x, y).
@@ -105,16 +110,18 @@ def cg_data(df, x, y, kernel_width, kern=kernel):
 
     Returns:
         rho, px, py: The density and momentum fields at the specified
-                     position(s). May be numpy arrays.
+                     position(s). numpy arrays if vectorized.
     """
     # Calculating the distance between points is quite an expensive
     # process, even if vectorized. Therefore, we filter the dataframe
     # before calculating distances and kernels. Note that the filter
     # includes some particles that are more than kernel_width away from
     # the point of interest - these will result in kernel = 0.
-    df2 = df[(x - kernel_width < df.x) & (df.x < x + kernel_width)
-            & (y - kernel_width < df.y) & (df.y < y + kernel_width)]
-#    df2 = df[mask(df.x, df.y, x, y, kernel_width, kernel_width)]
+    df2 = df[reduce(bitwise_and,
+                    [x - kernel_width < df.x,
+                     df.x < x + kernel_width,
+                     y - kernel_width < df.y,
+                     df.y < y + kernel_width])]
     if df2.shape[0] == 0:
         rho = px = py = 0.0
     else:
@@ -125,10 +132,6 @@ def cg_data(df, x, y, kernel_width, kern=kernel):
         py = np.sum(kers * np.pi * df2.r ** 2 * df2.v)
 
     return rho, px, py
-
-cg_data = np.vectorize(cg_data, excluded=[0, 3, 4])
-
-cg_data = timed("coarse-graining")(cg_data)
 
 
 def cg_general(df, x, y, kernel_width, kern=kernel):
@@ -162,6 +165,8 @@ cg_general = np.vectorize(cg_general, excluded=[0, 3, 4])
 cg_general = timed("coarse-graining")(cg_general)
 
 
+@timed("{f.__name__}")
+@lambda f: np.vectorize(f, excluded=[0, 4])
 def cg_data3d(df, x, y, z, kernel_width):
     df2 = df[(x - kernel_width < df.x) & (df.x < x + kernel_width)
             & (y - kernel_width < df.y) & (df.y < y + kernel_width)
@@ -179,9 +184,9 @@ def cg_data3d(df, x, y, z, kernel_width):
 
     return rho, px, py, pz
 
-cg_data3d = np.vectorize(cg_data3d, excluded=[0, 4])
 
-
+@timed("coarse-graining with {f.__name__}")
+@lambda f: np.vectorize(f, excluded=[0, 4])
 def cg_general3d(df, x, y, z, kernel_width):
     """Calculate the coarse-grained field q(x,y, z) from value qis at
     positions (xis, yis, zis) in the dataframe.
@@ -206,10 +211,6 @@ def cg_general3d(df, x, y, z, kernel_width):
     dists = dist3d(x, y, z, df2.x, df2.y, df2.z)
     kers = kernel3d(dists, kernel_width)
     return np.sum(kers * df2.q)
-
-
-cg_general3d = np.vectorize(cg_general3d, excluded=[0, 4])
-cg_general3d = timed("coarse-graining")(cg_general3d)
 
 
 def x_front(df, y, dy, periodicity=None, percentile=95):

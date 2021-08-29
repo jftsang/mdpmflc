@@ -19,6 +19,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from mdpmflc import CACHEDIR
 from mdpmflc.controller.results.plots_figviews import need_to_regenerate, MIMETYPE
 from mdpmflc.model.simulation import Simulation
+from mdpmflc.utils.decorators import timed
 from mdpmflc.utils.graphics_cg import plot_depth, plot_all_cg_fields
 
 logging.getLogger().setLevel(logging.INFO)
@@ -29,7 +30,7 @@ cg_plots_figviews = Blueprint('cg_plots_figviews', __name__, )
 
 
 @cg_plots_figviews.route("/<sername>/<simname>/<ind>/depth")
-def showdepthplot_fig(sername, simname, ind):
+def depth_plot_figview(sername, simname, ind):
     sim = Simulation(sername, simname)
 
     data_fn = sim.data_fn(ind)
@@ -75,7 +76,8 @@ def showdepthplot_fig(sername, simname, ind):
 
 
 @cg_plots_figviews.route("/<sername>/<simname>/<ind>/<field>")
-def showcgplot_fig(sername, simname, ind, field):
+@timed("cg_plot_figview for {simname}:{ind}, field {field}")
+def cg_plot_figview(sername, simname, ind, field):
     if field not in {"depth", "rho", "px", "py", "u", "v"}:
         return ""
 

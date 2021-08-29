@@ -1,18 +1,36 @@
 from functools import wraps
 import logging
+from inspect import signature
 from time import time
 
-def timed(msg="", logger=logging.getLogger()):
+def timed(msg="", log_fn=logging.info):
+    """Display log messages before and after running the function, with
+    the latter message displaying the elapsed time.
+
+    For vectorized functions, you almost certainly want the decorators
+    this way round:
+
+        @timed()
+        @np.vectorize
+        def func(x):
+            ...
+
+        func(xs)
+
+    to make sure that the logging only gets done once in all, rather
+    than once for each x in xs.
+    """
     def decorator(f):
         @wraps(f)
-        def decorated_f(*args, **kwargs):
-            logger.info(f"Beginning {msg}...")
+        def timed_f(*args, **kwargs):
+            arguments = signature(f).bind(*args, **kwargs).arguments
+            log_fn("Begin " + msg.format(**arguments))
             tic = time()
             try:
                 return f(*args, **kwargs)
             finally:
                 toc = time()
-                logger.info(f"Done {msg}. Time elapsed {toc-tic} s.")
+                log_fn("Done " + msg.format(**arguments) + f" in {toc - tic} s.")
 
-        return decorated_f
+        return timed_f
     return decorator
