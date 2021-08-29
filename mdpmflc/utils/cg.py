@@ -1,8 +1,10 @@
 from functools import reduce
 from typing import Optional
+
 import numpy as np
 from numpy import bitwise_and
 
+from mdpmflc.cache import cache
 from mdpmflc.utils.decorators import timed
 
 def kernel(r, kernel_width, normalised=True):
@@ -95,8 +97,8 @@ def mask(
 mask = np.vectorize(mask, excluded=[2, 3, 4, 5, 6, 7])
 
 
-
-@timed("coarse-graining with {f.__name__}")
+@cache.memoize(tag="cg_data")
+@timed("coarse-graining with cg_data")
 @(lambda f: np.vectorize(f, excluded=[0, 3, 4]))
 def cg_data(df, x, y, kernel_width, kern=kernel):
     """Calculate the 2D coarse-grained fields at the specified point
@@ -165,7 +167,8 @@ cg_general = np.vectorize(cg_general, excluded=[0, 3, 4])
 cg_general = timed("coarse-graining")(cg_general)
 
 
-@timed("{f.__name__}")
+@cache.memoize(tag="cg_data")
+@timed("coarse-graining with cg_data3d")
 @lambda f: np.vectorize(f, excluded=[0, 4])
 def cg_data3d(df, x, y, z, kernel_width):
     df2 = df[(x - kernel_width < df.x) & (df.x < x + kernel_width)

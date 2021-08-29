@@ -83,7 +83,7 @@ def plot_depth(
     return plot_field(xg, yg, depth_g, **kwargs)
 
 
-@timed("creating plots for all cg fields of {data_fn}")
+@timed("running plot_all_cg_fields of {data_fn}")
 def plot_all_cg_fields(data_fn, kernel_width=0.4, **kwargs) -> Dict[str, Figure]:
     """As above, but produce plots of all fields.
 
