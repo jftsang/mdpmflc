@@ -1,15 +1,11 @@
 """Creating figures that show coarse-grained fields."""
 from typing import Dict
 
-from matplotlib import cm
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
 import numpy as np
-from mdpmflc.utils.cg import (
-    cg_data,
-    x_front,
-    depth
-)
+from matplotlib import cm
+from matplotlib.figure import Figure
+
+from mdpmflc.utils.cg import cg_data, depth
 from mdpmflc.utils.decorators import timed
 from mdpmflc.utils.read_file import read_data_file
 
@@ -17,6 +13,7 @@ from mdpmflc.utils.read_file import read_data_file
 def plot_field(
     xg, yg, field_g,
     fig_width=7, fig_height=None,
+    xmin=None, xmax=None, ymin=None, ymax=None,
     colormin=None, colormax=None
 ):
     """Plotting of a generic continuum field.
@@ -27,11 +24,16 @@ def plot_field(
     Returns:
         fig: An instance of plt.Figure
     """
-    if fig_height is None:
+    if xmin is None:
         xmin = min(xg.flatten())
+    if xmax is None:
         xmax = max(xg.flatten())
+    if ymin is None:
         ymin = min(yg.flatten())
+    if ymax is None:
         ymax = max(yg.flatten())
+
+    if fig_height is None:
         fig_height = (ymax-ymin)/(xmax-xmin)*fig_width - 0.0
 
     fig = Figure(figsize=(fig_width, fig_height))
@@ -54,7 +56,10 @@ def plot_depth(
     data_fn,
     kernel_width=0.4,
     percentile=99,
-    **kwargs
+    fig_width=7, fig_height=None,
+    xmin=None, xmax=None, ymin=None, ymax=None,
+    nx=50, ny=50,
+    **kwargs,
 ):
     """Produce a plot of the flow depth from a .data file.
 
@@ -68,10 +73,17 @@ def plot_depth(
         fig: An instance of plt.Figure
     """
     data_df, dimensions, headline = read_data_file(data_fn)
-    num, time, xmin, ymin, zmin, xmax, ymax, zmax = headline
-    xmax = 40
+    num, time, xmin_, ymin_, zmin_, xmax_, ymax_, zmax_ = headline
+    if xmin is None:
+        xmin = xmin_
+    if xmax is None:
+        xmax = xmax_
+    if ymin is None:
+        ymin = ymin_
+    if ymax is None:
+        ymax = ymax_
 
-    xs, ys = np.linspace(xmin, xmax), np.linspace(ymin, ymax)
+    xs, ys = np.linspace(xmin, xmax, int(nx)), np.linspace(ymin, ymax, int(ny))
     xg, yg = np.meshgrid(xs, ys)
 
     depth_g = depth(
@@ -79,11 +91,17 @@ def plot_depth(
         percentile=percentile
     )
 
-    return plot_field(xg, yg, depth_g, **kwargs)
+    return plot_field(xg, yg, depth_g, fig_width, fig_height,
+                      xmin, xmax, ymin, ymax, **kwargs)
 
 
 @timed("running plot_all_cg_fields of {data_fn}")
-def plot_all_cg_fields(data_fn, kernel_width=0.4, **kwargs) -> Dict[str, Figure]:
+def plot_all_cg_fields(
+        data_fn, kernel_width=0.4,
+        xmin=None, xmax=None, ymin=None, ymax=None,
+        nx=50, ny=50,
+        **kwargs,
+) -> Dict[str, Figure]:
     """As above, but produce plots of all fields.
 
     Arguments:
@@ -94,11 +112,17 @@ def plot_all_cg_fields(data_fn, kernel_width=0.4, **kwargs) -> Dict[str, Figure]
         figs: A dictionary of figures
     """
     data_df, dimensions, headline = read_data_file(data_fn)
-    num, time, xmin, ymin, zmin, xmax, ymax, zmax = headline
-    xmax = 40
+    num, time, xmin_, ymin_, zmin_, xmax_, ymax_, zmax_ = headline
+    if xmin is None:
+        xmin = xmin_
+    if xmax is None:
+        xmax = xmax_
+    if ymin is None:
+        ymin = ymin_
+    if ymax is None:
+        ymax = ymax_
 
-    # xs, ys = np.linspace(xmin, xmax, 100), np.linspace(ymin, ymax, 100)
-    xs, ys = np.linspace(xmin, xmax), np.linspace(ymin, ymax)
+    xs, ys = np.linspace(xmin, xmax, int(nx)), np.linspace(ymin, ymax, int(ny))
     xg, yg = np.meshgrid(xs, ys)
 
     rhog, pxg, pyg = cg_data(data_df, xg, yg, kernel_width=kernel_width)
