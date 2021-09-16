@@ -1,6 +1,8 @@
 """Endpoints that serve plots, as PNG files."""
 import logging
 import os
+from tempfile import NamedTemporaryFile, TemporaryDirectory
+from typing import Union, Optional, Dict
 
 import moviepy.editor as mp
 
@@ -17,7 +19,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 from mdpmflc import CACHEDIR
-from mdpmflc.controller.results.plots_figviews import need_to_regenerate, MIMETYPE
+from mdpmflc.controller.results.plots_figviews import MIMETYPE
 from mdpmflc.model.simulation import Simulation
 from mdpmflc.utils.decorators import timed
 from mdpmflc.utils.graphics_cg import plot_depth, plot_all_cg_fields
@@ -28,106 +30,73 @@ logging.getLogger().setLevel(logging.INFO)
 cg_plots_figviews = Blueprint('cg_plots_figviews', __name__, )
 
 
+def floatify(dic: Dict[str, str]) -> Dict[str, Union[None, float, str]]:
+    """To be used on flask.request.values.get or flask.request.values.put.
+    Convert numerical values into floats, and keep other values as
+    either strings or Nones.
+    """
+    def maybe_float(x: Optional[str]) -> Union[None, float, str]:
+        if x is None:
+            return None
+        try:
+            return float(x)
+        except ValueError:
+            return x
+
+    return {key: maybe_float(dic[key]) for key in dic}
+
 
 @cg_plots_figviews.route("/<sername>/<simname>/<ind>/depth")
+@timed("depth_plot_figview for {simname}:{ind}")
 def depth_plot_figview(sername, simname, ind):
     sim = Simulation(sername, simname)
 
     data_fn = sim.data_fn(ind)
 
-    form = flask.request.values.get("form")
-    if form is None:
-        form = "png"
+    format = flask.request.values.get("format", default="png")
+    if format not in ["png", "svg", "pdf"]:
+        raise NotImplementedError
 
     plot_fn = os.path.join(
         CACHEDIR, "graphics", sername, simname,
-        ".".join([simname, "depth", ind, form])
+        ".".join([simname, "depth", ind, format])
     )
     logging.info(plot_fn)
 
-    if (flask.request.values.get("nocache")
-        or need_to_regenerate(plot_fn, [data_fn])):
-        logging.info("Generating a new image")
-        os.makedirs(os.path.dirname(plot_fn), exist_ok=True)
+    logging.info("Generating a new image")
+    os.makedirs(os.path.dirname(plot_fn), exist_ok=True)
 
-        fig_width = flask.request.values.get("fig_width")
-        fig_width = float(fig_width) if fig_width else 7
-        fig_height = flask.request.values.get("fig_height")
-        fig_height = float(fig_height) if fig_height else None
-        colormin = flask.request.values.get("colormin")
-        colormin = float(colormin) if colormin else None
-        colormax = flask.request.values.get("colormax")
-        colormax = float(colormax) if colormax else None
-
-        fig = plot_depth(
-            data_fn, fig_width=fig_width, fig_height=fig_height,
-            colormin=colormin, colormax=colormax
-        )
-
-        if form in ["png", "svg", "pdf"]:
-            fig.savefig(plot_fn, format=form)
-        else:
-            raise NotImplementedError
-    else:
-        logging.info("Serving a cached image")
-
-    with open(plot_fn, "rb", buffering=0) as plot_f:
-        return Response(plot_f.read(), mimetype=MIMETYPE[form])
+    fig = plot_depth(data_fn, **floatify(flask.request.values))
+    with NamedTemporaryFile(suffix="." + format) as ntf:
+        fig.savefig(ntf, format=format)
+        ntf.seek(0)
+        return Response(ntf.read(), mimetype=MIMETYPE[format])
 
 
 @cg_plots_figviews.route("/<sername>/<simname>/<ind>/<field>")
 @timed("cg_plot_figview for {simname}:{ind}, field {field}")
 def cg_plot_figview(sername, simname, ind, field):
     if field not in {"depth", "rho", "px", "py", "u", "v"}:
-        return ""
+        raise NotImplementedError
 
     sim = Simulation(sername, simname)
 
     data_fn = sim.data_fn(ind)
 
-    form = flask.request.values.get("form")
-    if form is None:
-        form = "png"
-    if form not in ["png", "svg", "pdf"]:
+    format = flask.request.values.get("format", "png")
+    if format not in ["png", "svg", "pdf"]:
         raise NotImplementedError
 
-    plot_fn = os.path.join(
-        CACHEDIR, "graphics", sername, simname,
-        ".".join([simname, field, ind, form])
+    logging.info("Generating new CG plots")
+    cgfigs = plot_all_cg_fields(
+        data_fn, kernel_width=0.4, **floatify(flask.request.values)
     )
-    logging.info(plot_fn)
 
-    if (flask.request.values.get("nocache")
-        or need_to_regenerate(plot_fn, [data_fn])):
-        os.makedirs(os.path.dirname(plot_fn), exist_ok=True)
-
-        fig_width = flask.request.values.get("fig_width")
-        fig_width = float(fig_width) if fig_width else 7
-        fig_height = flask.request.values.get("fig_height")
-        fig_height = float(fig_height) if fig_height else None
-        colormin = flask.request.values.get("colormin")
-        colormin = float(colormin) if colormin else None
-        colormax = flask.request.values.get("colormax")
-        colormax = float(colormax) if colormax else None
-
-        logging.info("Generating new CG plots")
-        cgfigs = plot_all_cg_fields(data_fn, kernel_width=0.4,
-            fig_width=fig_width,
-            fig_height=fig_height,
-            colormin=colormin,
-            colormax=colormax
+    with TemporaryDirectory() as td:
+        fn = os.path.join(
+            td, ".".join([simname, field, ind, format])
         )
+        cgfigs[field].savefig(fn, format=format)
 
-        for field in cgfigs:
-            fn = os.path.join(
-                CACHEDIR, "graphics", sername, simname,
-                ".".join([simname, field, ind, form])
-            )
-            logging.info(f"Saving an image to {fn}")
-            cgfigs[field].savefig(fn, format=form)
-
-    else:
-        logging.info("Serving a cached image")
-
-    with open(plot_fn, "rb", buffering=0) as plot_f:
-        return Response(plot_f.read(), mimetype=MIMETYPE[form])
+        with open(fn, "rb", buffering=0) as plot_f:
+            return Response(plot_f.read(), mimetype=MIMETYPE[format])

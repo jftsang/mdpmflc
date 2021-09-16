@@ -188,7 +188,7 @@ def cg_data3d(df, x, y, z, kernel_width):
     return rho, px, py, pz
 
 
-@timed("coarse-graining with {f.__name__}")
+@timed("coarse-graining with cg_general3d")
 @lambda f: np.vectorize(f, excluded=[0, 4])
 def cg_general3d(df, x, y, z, kernel_width):
     """Calculate the coarse-grained field q(x,y, z) from value qis at
@@ -240,6 +240,9 @@ x_front = np.vectorize(x_front, excluded=[0, 2, 3, 4])
 x_front = timed("calculating the front position")(x_front)
 
 
+@cache.memoize(tag="depth")
+@timed("finding depth...")
+@lambda f: np.vectorize(f, excluded=[0, 3, 4, 5])
 def depth(df, x, y, kernel_width, period_y=None, percentile=95):
     if period_y:
         df2 = df[
@@ -259,5 +262,3 @@ def depth(df, x, y, kernel_width, period_y=None, percentile=95):
     else:
         return 0
 
-depth = np.vectorize(depth, excluded=[0, 3, 4, 5])
-# depth = timed("calculating the depth")(depth)

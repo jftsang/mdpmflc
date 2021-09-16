@@ -38,7 +38,6 @@ def plot_field(
     ax = fig.add_subplot(111)
 
     if colormin is None:
-        # colormin = 0
         colormin = np.percentile(field_g.flatten(), 0)
     if colormax is None:
         colormax = np.percentile(field_g.flatten(), 95)

@@ -46,13 +46,13 @@ plots_figviews = Blueprint('plots_figviews', __name__, )
 def data_plot_figview(sername, simname, ind):
     """A plot of a .data file, in PNG format by default."""
     sim = Simulation(sername, simname)
-    form = flask.request.values.get("form")
-    if form is None:
-        form = "png"
+    format = flask.request.values.get("format")
+    if format is None:
+        format = "png"
 
     data_fn = sim.data_fn(ind)
     dataplot_fn = os.path.join(
-        CACHEDIR, "graphics", sername, simname, f"{simname}.data.{ind}.{form}"
+        CACHEDIR, "graphics", sername, simname, f"{simname}.data.{ind}.{format}"
     )
 
     if (flask.request.values.get("nocache")
@@ -75,15 +75,15 @@ def data_plot_figview(sername, simname, ind):
         )
         # canvas = FigureCanvas(fig)
         # print(dir(canvas))
-        if form in ["png", "svg", "pdf"]:
-            fig.savefig(dataplot_fn, format=form)
+        if format in ["png", "svg", "pdf"]:
+            fig.savefig(dataplot_fn, format=format)
         else:
             raise NotImplementedError
     else:
         logging.info("Serving a cached image")
 
     with open(dataplot_fn, "rb", buffering=0) as dataplot_f:
-        return Response(dataplot_f.read(), mimetype=MIMETYPE[form])
+        return Response(dataplot_f.read(), mimetype=MIMETYPE[format])
 
 
 @plots_figviews.route("/<sername>/<simname>/ene")
