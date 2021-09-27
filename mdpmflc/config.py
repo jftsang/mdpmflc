@@ -7,5 +7,6 @@ DPMDIR = "/Volumes/Transcend/Fingering/"
 SRCDIR = "/Volumes/Transcend/MercuryDPM/MercurySource/Drivers/USER/jmft2/Fingering"
 CACHEDIR = "/tmp/mdpmflc.cache"
 DPMDRIVERS = ["MaserFingering", "MdpmflcTutorial"]
+CACHE_LIMIT = 500000000
 
 SQLITE_FILE = os.path.join(MDPMFLCDIR, "./mdpmflc.db")
