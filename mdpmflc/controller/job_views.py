@@ -3,20 +3,23 @@ import logging
 import flask
 from flask import render_template, Blueprint
 
-from mdpmflc.utils.jobs import queue_job
+from mdpmflc.utils.jobs import queue_job, get_queue, start_job
 
 logging.getLogger().setLevel(logging.INFO)
 
 job_views = Blueprint('job_views', __name__)
 
 
+@job_views.route("/queue")
+def queue_view():
+    queue_df = get_queue()
+    return queue_df.to_html()
+
+
 @job_views.route("/queue", methods=["POST"])
 def queue_simulation():
     """Receive a request for a simulation and queue it."""
     # https://code.luasoftware.com/tutorials/flask/flask-get-request-parameters-get-post-and-json/
-    if flask.request.method == "GET":
-        raise Exception("Sorry, you should request this page with a POST request")
-
     if "driver" in flask.request.values:
         driver = flask.request.values.get("driver")
     else:
@@ -33,11 +36,6 @@ def queue_simulation():
             raise ValueError("simname should not be empty")
     else:
         raise Exception("simname not given")
-
-#    if "configfile" in flask.request.files:
-#        configfile = flask.request.files.get("configfile")
-#    else:
-#        raise Exception("config file not given")
 
     if "configfile" in flask.request.values:
         configfile = flask.request.values.get("configfile")
@@ -56,3 +54,8 @@ def queue_simulation():
                            driver=driver,
                            sername=sername,
                            simname=simname)
+
+
+@job_views.route("/start/<job_id>", methods=["GET", "POST"])
+def start_job_controller(job_id):
+    start_job(job_id)

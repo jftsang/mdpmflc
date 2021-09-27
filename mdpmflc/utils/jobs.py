@@ -9,19 +9,11 @@ from werkzeug.utils import secure_filename
 
 from mdpmflc.config import DPMDIR, DPMDRIVERS, SQLITE_FILE
 from mdpmflc.errorhandlers import *
+from mdpmflc.model.job import Job, db
 from mdpmflc.model.simulation import Simulation
 from mdpmflc.utils.listings import get_available_series
 
-
 logging.getLogger().setLevel(logging.INFO)
-
-class Job:
-    def __init__(self, driver, sername, simname, configfile):
-        self.driver = driver
-        self.sername = sername
-        self.simname = simname
-        self.configfile = configfile
-
 
 def sanitise_filename(filename):
     """Sanitise the uploaded config file's filename. Raise an exception
@@ -69,46 +61,52 @@ def queue_job(driver, sername, simname, configfile):
         }).to_sql('jobs', conn, if_exists='append', index=False)
 
 
-def start_job(driver, sername, simname):
+def get_queue():
+    with sqlite3.connect(SQLITE_FILE) as conn:
+        return pd.read_sql_query("SELECT * FROM jobs", conn)
+
+
+def start_job(job_id):
+    job = Job.query.filter_by(job_id=job_id)
+    driver, series, label, config = job.driver, job.series, job.simulation, job.config
+
     # Create a directory for the simulation
-    sim = Simulation(sername, simname)
+    sim = Simulation(series, label)
     simdir = sim.simdir()
     try:
         os.mkdir(simdir)
     except PermissionError as e:
         raise e  # TODO
     except FileExistsError as e:
-        raise SimulationAlreadyExistsError(sername, simname, driver)
+        raise SimulationAlreadyExistsError(series, label, driver)
 
     # Put the uploaded config file there
     saveto = sim.config_fn()
     if os.path.exists(saveto):
-        raise SimulationAlreadyExistsError(sername, simname, driver)
+        raise SimulationAlreadyExistsError(series, label, driver)
 
     with open(saveto, "w") as fp:
-        fp.write(configfile)
+        fp.write(config)
         logging.info(f"Saved config file to {saveto}")
 
     # Queue the simulation
     executable = os.path.join(DPMDIR, driver)
     stdout_f = open(sim.out_fn(), "a")
     stderr_f = open(sim.err_fn(), "a")
-    command = [executable, saveto, "-name", simname]
-    print(command)
+    command = [executable, saveto, "-name", label]
 
+    print(command)
     subp = subprocess.Popen(['echo'] + command,
                             cwd=simdir,
                             stdout=stdout_f,
                             stderr=stderr_f)
+
+    job.status = 1
+    db.session.commit()
+
+
     return subp
 
 
-def get_queue():
-    print(SQLITE_FILE)
-    with sqlite3.connect(SQLITE_FILE) as conn:
-        return pd.read_sql_query("SELECT * FROM jobs", conn)
-
-
 def does_simulation_already_exist(sername, simname):
-    # TODO
-    pass
+    raise NotImplementedError
