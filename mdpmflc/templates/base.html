@@ -3,9 +3,10 @@
 <!-- https://jinja.palletsprojects.com/en/3.0.x/templates/#template-inheritance -->
 <head>
     {% block head %}
+        <title>{% block title %}{% endblock %} - mdpmflc</title>
         <meta charset="UTF-8">
         <link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}">
-        <title>{% block title %}{% endblock %} - mdpmflc</title>
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}">
     {% endblock %}
 </head>
 
