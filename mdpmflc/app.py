@@ -11,35 +11,41 @@ from .controller.results.simulation_views import simulation_views
 from .controller.static_views import static_views
 from .errorhandlers import error_handlers
 
-app = Flask(__name__)
 
-app.register_blueprint(static_views, url_prefix="/")
-app.register_blueprint(driver_views, url_prefix="/driver")
-app.register_blueprint(series_views, url_prefix="/results")
-app.register_blueprint(simulation_views, url_prefix="/results")
-app.register_blueprint(raw_file_views, url_prefix="/results")
-app.register_blueprint(plots_figviews, url_prefix="/plots")
-app.register_blueprint(cg_plots_figviews, url_prefix="/plots")
-app.register_blueprint(job_views, url_prefix="/jobs")
+def create_app():
+    app = Flask(__name__)
 
-for error in error_handlers:
-    app.register_error_handler(error, error_handlers[error])
+    app.register_blueprint(static_views, url_prefix="/")
+    app.register_blueprint(driver_views, url_prefix="/driver")
+    app.register_blueprint(series_views, url_prefix="/results")
+    app.register_blueprint(simulation_views, url_prefix="/results")
+    app.register_blueprint(raw_file_views, url_prefix="/results")
+    app.register_blueprint(plots_figviews, url_prefix="/plots")
+    app.register_blueprint(cg_plots_figviews, url_prefix="/plots")
+    app.register_blueprint(job_views, url_prefix="/jobs")
 
-
-# Be permissive about trailing slashes https://stackoverflow.com/a/40365514
-app.url_map.strict_slashes = False
+    for error in error_handlers:
+        app.register_error_handler(error, error_handlers[error])
 
 
-@app.before_request
-def clear_trailing_slashes():
-    from flask import redirect, request
+    # Be permissive about trailing slashes https://stackoverflow.com/a/40365514
+    app.url_map.strict_slashes = False
 
-    rp = request.path
-    if rp != '/' and rp.endswith('/'):
-        return redirect(rp[:-1])
 
-# db_engine = create_engine(f"sqlite:///{SQLITE_FILE}", echo=True)
+    @app.before_request
+    def clear_trailing_slashes():
+        from flask import redirect, request
+
+        rp = request.path
+        if rp != '/' and rp.endswith('/'):
+            return redirect(rp[:-1])
+
+    return app
 
 
 def start_app():
+    app = create_app()
     app.run(host="0.0.0.0", port=5000, debug=True)
+
+
+app = create_app()
