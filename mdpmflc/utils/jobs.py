@@ -1,13 +1,11 @@
 """Stuff related to job control."""
 import logging
 import os
-import sqlite3
 import subprocess
 
-import pandas as pd
 from werkzeug.utils import secure_filename
 
-from mdpmflc.config import DPMDIR, DPMDRIVERS, SQLITE_FILE
+from mdpmflc.config import DPMDIR, DPMDRIVERS
 from mdpmflc.errorhandlers import *
 from mdpmflc.model.job import Job, db
 from mdpmflc.model.simulation import Simulation
@@ -31,43 +29,38 @@ def sanitise_filename(filename):
     return filename
 
 
-def queue_job(driver, sername, simname, configfile):
+def queue_job(driver, series, label, configfile):
     """Queue a simulation."""
 
     if driver not in DPMDRIVERS:
         raise Exception(f"{driver} is not a recognised driver.")
 
-    if sername not in get_available_series():
-        raise SeriesNotFoundError(sername)
+    if series not in get_available_series():
+        raise SeriesNotFoundError(series)
 
-    if not simname.isidentifier():
-        raise ValueError(f"{simname} is an illegal name (fails isidentifier())")
+    if not label.isidentifier():
+        raise ValueError(f"{label} is an illegal label (fails isidentifier())")
 
     # Check for duplication
-    queue = get_queue()
-    if any((queue.series == sername) & (queue.simname == simname)):
+    if Job.query.filter_by(series=series, label=label).all():
         raise SimulationAlreadyExistsError(
-            driver, sername, simname,
-            "That combination of series and simulation name has already been used"
+            driver, series, label,
+            "That combination of series name and simulation label has already been used"
         )
 
-    with sqlite3.connect(SQLITE_FILE) as conn:
-        pd.DataFrame({
-            'simname': [simname],
-            'series': [sername],
-            'driver': [driver],
-            'config': [configfile],
-            'status': [0]
-        }).to_sql('jobs', conn, if_exists='append', index=False)
-
-
-def get_queue():
-    with sqlite3.connect(SQLITE_FILE) as conn:
-        return pd.read_sql_query("SELECT * FROM jobs", conn)
+    job = Job(
+        driver=driver,
+        series=series,
+        label=label,
+        config=configfile,
+        status=0
+    )
+    db.session.add(job)
+    db.session.commit()
 
 
 def start_job(job_id):
-    job = Job.query.filter_by(job_id=job_id)
+    job = Job.query.filter_by(id=job_id)
     driver, series, label, config = job.driver, job.series, job.simulation, job.config
 
     # Create a directory for the simulation

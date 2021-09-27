@@ -11,6 +11,11 @@ from .controller.results.series_views import series_views
 from .controller.results.simulation_views import simulation_views
 from .controller.static_views import static_views
 from .errorhandlers import error_handlers
+from .model import db
+
+
+def register_extensions(app):
+    db.init_app(app)
 
 
 def create_app():
@@ -41,6 +46,8 @@ def create_app():
             return redirect(rp[:-1])
 
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{SQLITE_FILE}'
+
+    register_extensions(app)
 
     return app
 

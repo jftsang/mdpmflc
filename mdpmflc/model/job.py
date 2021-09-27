@@ -1,16 +1,13 @@
-from flask_sqlalchemy import SQLAlchemy
+from mdpmflc.model import db
 
-from mdpmflc.app import create_app
-
-db = SQLAlchemy(create_app())
 
 class Job(db.Model):
-    id = db.Column('job_id', db.Integer, primary_key=True)
+    id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
     driver = db.Column(db.String(100))
     series = db.Column(db.String(100))
-    label = db.Column(db.String(100))
+    label = db.Column(db.String(100), nullable=False)
     config = db.Column(db.Text)
-    status = db.Column(db.Integer)
+    status = db.Column(db.Integer, nullable=False)
 
     def __init__(self, driver, series, label, config, status):
         self.driver = driver

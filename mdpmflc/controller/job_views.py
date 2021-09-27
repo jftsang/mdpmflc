@@ -3,7 +3,8 @@ import logging
 import flask
 from flask import render_template, Blueprint
 
-from mdpmflc.utils.jobs import queue_job, get_queue, start_job
+from mdpmflc.model.job import Job
+from mdpmflc.utils.jobs import queue_job, start_job
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -11,9 +12,10 @@ job_views = Blueprint('job_views', __name__)
 
 
 @job_views.route("/queue")
-def queue_view():
-    queue_df = get_queue()
-    return queue_df.to_html()
+def job_queue_view():
+    queue = Job.query.all()
+    return render_template("jobs/job_queue.html",
+                           queue=queue)
 
 
 @job_views.route("/queue", methods=["POST"])
