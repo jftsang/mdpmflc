@@ -3,7 +3,7 @@ import logging
 import flask
 from flask import render_template, Blueprint
 
-from mdpmflc.model.job import Job
+from mdpmflc.models import Job
 from mdpmflc.utils.jobs import queue_job, start_job
 
 logging.getLogger().setLevel(logging.INFO)

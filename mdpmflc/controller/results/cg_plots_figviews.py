@@ -19,8 +19,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 from mdpmflc import CACHEDIR
-from mdpmflc.controller.results.plots_figviews import MIMETYPE
-from mdpmflc.model.simulation import Simulation
+from mdpmflc.controller.results.plots_figviews import MIMETYPE, floatify
+from mdpmflc.models import Simulation
 from mdpmflc.utils.decorators import timed
 from mdpmflc.utils.graphics_cg import plot_depth, plot_all_cg_fields
 

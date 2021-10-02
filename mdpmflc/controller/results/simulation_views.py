@@ -5,7 +5,7 @@ import os
 from flask import render_template, Response, Blueprint
 
 from mdpmflc.exceptions import SimulationNotFoundError
-from mdpmflc.model.simulation import Simulation
+from mdpmflc.models import Simulation
 from mdpmflc.utils.read_file import (
     read_data_file,
 )

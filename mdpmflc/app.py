@@ -11,7 +11,7 @@ from .controller.results.series_views import series_views
 from .controller.results.simulation_views import simulation_views
 from .controller.static_views import static_views
 from .errorhandlers import error_handlers
-from .model import db
+from .models import db
 
 
 def register_extensions(app):

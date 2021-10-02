@@ -18,7 +18,8 @@ from matplotlib.animation import FuncAnimation, ImageMagickWriter
 from matplotlib.backends.backend_agg import FigureCanvas, FigureCanvasAgg
 
 from mdpmflc import CACHEDIR
-from mdpmflc.model.simulation import Simulation
+from mdpmflc.models import Simulation
+from mdpmflc.utils.decorators import timed
 from mdpmflc.utils.graphics import create_data_figure, create_ene_figure
 from mdpmflc.utils.anims import create_animation
 

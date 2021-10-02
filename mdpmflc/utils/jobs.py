@@ -7,8 +7,7 @@ from werkzeug.utils import secure_filename
 
 from mdpmflc.config import DPMDIR, DPMDRIVERS
 from mdpmflc.errorhandlers import *
-from mdpmflc.model.job import Job, db
-from mdpmflc.model.simulation import Simulation
+from mdpmflc.models import Job, db, Simulation
 from mdpmflc.utils.listings import get_available_series
 
 logging.getLogger().setLevel(logging.INFO)
