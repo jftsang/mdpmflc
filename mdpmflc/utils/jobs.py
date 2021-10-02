@@ -60,7 +60,7 @@ def queue_job(driver, series, label, configfile):
 
 
 def start_job(job_id):
-    job = Job.query.filter_by(id=job_id)
+    job = Job.query.get_or_404(job_id)
     driver, series, label, config = job.driver, job.series, job.simulation, job.config
 
     # Create a directory for the simulation
