@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Submit a new job{% endblock %}
+{% block content %}
+
+<form action="{{ url_for('job_views.queue_simulation') }}"
+      method="post" enctype="multipart/form-data">
+    <label for="driver">Driver</label>
+    <select id="driver" name="driver" required="true">
+        <option></option>
+        {% for d in drivers %}
+            <option value="{{d}}">{{d}}</option>
+        {% endfor %}
+    </select>
+    <br/>
+    <label for="sername">Series name</label>
+    <select id="sername" name="sername" required="true">
+        <option></option>
+        {% for s in available_series %}
+        <option value="{{s}}">{{s}}</option>
+        {% endfor %}
+    </select>
+    <br/>
+    <label for="label">Simulation label</label>
+    <input id="label" type="input" name="label" value="" required="true"/>
+    <br/>
+    <!--
+    Configuration file <input type="file" name="configfile"/>
+    -->
+    <label for="config">Configuration</label><br/>
+    <textarea id="config" name="config" rows="40" cols="80"></textarea>
+    <br/>
+    <input type="submit" value="Queue a job"/>
+</form>
+
+{% endblock %}

@@ -3,19 +3,28 @@ import logging
 import flask
 from flask import render_template, Blueprint
 
+from mdpmflc.config import DPMDRIVERS
 from mdpmflc.models import Job
 from mdpmflc.utils.jobs import queue_job, start_job
+from mdpmflc.utils.listings import get_available_series
 
 logging.getLogger().setLevel(logging.INFO)
 
 job_views = Blueprint('job_views', __name__)
 
 
-@job_views.route("/queue")
-def job_queue_view():
+@job_views.route("/")
+def job_index_view():
     queue = Job.query.all()
     return render_template("jobs/job_queue.html",
                            queue=queue)
+
+
+@job_views.route("/queue")
+def queue_form():
+    return render_template("jobs/queue_form.html",
+                           drivers=DPMDRIVERS,
+                           series=get_available_series())
 
 
 @job_views.route("/queue", methods=["POST"])
