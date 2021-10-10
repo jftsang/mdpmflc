@@ -144,26 +144,3 @@ class DataFile:
             raise ValueError
         self.df = pd.read_csv(data_fn, sep=" ", skiprows=1, names=names)
         return self.df
-
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128))
-    password = db.Column(db.String())
-    email = db.Column(db.String())
-
-    def to_json(self):
-        return {"name": self.name,
-                "email": self.email}
-
-    def is_authenticated(self):
-        return True
-
-    def is_active(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        return str(self.id)
