@@ -1,7 +1,7 @@
 import logging
 
-import flask
 from flask import render_template, Blueprint, redirect, url_for, flash
+from flask_breadcrumbs import register_breadcrumb
 
 from mdpmflc.config import DPMDRIVERS
 from mdpmflc.controller.forms import JobSubmissionFormFactory
@@ -15,6 +15,7 @@ job_views = Blueprint('job_views', __name__)
 
 
 @job_views.route("/index")
+@register_breadcrumb(job_views, '.', 'Queue')
 def job_index_view():
     queue = Job.query.all()
     return render_template("jobs/job_queue.html",

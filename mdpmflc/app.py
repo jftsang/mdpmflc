@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from flask import Flask
+from flask_breadcrumbs import Breadcrumbs
 from flask_migrate import Migrate
 
 from mdpmflc.controller.driver_views import driver_views
@@ -23,6 +24,8 @@ def register_extensions(app):
         migrate.init_app(app, db, render_as_batch=True)
     else:
         migrate.init_app(app, db)
+
+    Breadcrumbs(app=app)
 
 
 def create_app():

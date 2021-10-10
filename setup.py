@@ -11,6 +11,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'Flask>=1.1.2',
+        'flask-breadcrumbs==0.5.1',
         'flask-wtf>=0.15-1',
         'WTForms>=2.3.3',
         'matplotlib>=3.2.0',
