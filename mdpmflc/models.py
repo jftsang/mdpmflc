@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
@@ -15,6 +16,7 @@ class Job(db.Model):
     series = db.Column(db.String(100))
     label = db.Column(db.String(100), nullable=False)
     config = db.Column(db.Text)
+    submitted_date = db.Column(db.DateTime(), default=datetime.utcnow)
     status = db.Column(db.Integer, nullable=False)
 
     def __init__(self, driver, series, label, config, status):

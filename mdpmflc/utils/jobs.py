@@ -8,7 +8,6 @@ from werkzeug.utils import secure_filename
 from mdpmflc.config import DPMDIR, DPMDRIVERS
 from mdpmflc.errorhandlers import *
 from mdpmflc.models import Job, db, Simulation
-from mdpmflc.utils.listings import get_available_series
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -30,16 +29,6 @@ def sanitise_filename(filename):
 
 def queue_job(driver, series, label, configfile):
     """Queue a simulation."""
-
-    if driver not in DPMDRIVERS:
-        raise Exception(f"{driver} is not a recognised driver.")
-
-    if series not in get_available_series():
-        raise SeriesNotFoundError(series)
-
-    if not label.isidentifier():
-        raise ValueError(f"{label} is an illegal label (fails isidentifier())")
-
     # Check for duplication
     if Job.query.filter_by(series=series, label=label).all():
         raise SimulationAlreadyExistsError(
@@ -58,9 +47,9 @@ def queue_job(driver, series, label, configfile):
     db.session.commit()
 
 
-def start_job(job_id):
+def start_job(job_id: int) -> subprocess.Popen:
     job = Job.query.get_or_404(job_id)
-    driver, series, label, config = job.driver, job.series, job.simulation, job.config
+    driver, series, label, config = job.driver, job.series, job.label, job.config
 
     # Create a directory for the simulation
     sim = Simulation(series, label)
@@ -95,7 +84,6 @@ def start_job(job_id):
 
     job.status = 1
     db.session.commit()
-
 
     return subp
 

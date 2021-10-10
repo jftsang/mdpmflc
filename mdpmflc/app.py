@@ -45,6 +45,7 @@ def create_app():
         if rp != '/' and rp.endswith('/'):
             return redirect(rp[:-1])
 
+    app.config['SECRET_KEY'] = 'password'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{SQLITE_FILE}'
 
     register_extensions(app)

@@ -21,7 +21,6 @@ def main_page():
 @static_views.route("/help")
 def help_page():
     """A page that shows help."""
-    # src_fn = os.path.join(SRCDIR, "MdpmflcTutorial" + ".cpp")
     src_fn = os.path.join(
         os.path.dirname(
             os.path.realpath(__file__)), "..", "static", "MdpmflcTutorial.cpp")
