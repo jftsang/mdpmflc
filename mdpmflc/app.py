@@ -17,6 +17,7 @@ from .models import db
 
 def register_extensions(app):
     db.init_app(app)
+    Migrate().init_app(app, db)
 
 
 def create_app():
@@ -62,4 +63,3 @@ def start_app():
 
 
 app = create_app()
-migrate = Migrate(app, db)
