@@ -14,12 +14,18 @@ def is_identifier(form, field):
         raise StopValidation(message)
 
 
-def JobSubmissionFormFactory(series_choices):
+
+def JobSubmissionFormFactory(series_choices, jobs):
+    def is_unique_label_in_series(form, field):
+        collisions = jobs.filter_by(label=field.data, series_id=form.series.data)
+        if collisions.count():
+             raise StopValidation("There is already a simulation with this label in this series")
+
     class JobSubmissionForm(FlaskForm):
         driver = SelectField('Driver', choices=DPMDRIVERS)
         series = SelectField('Series', choices=series_choices)
         label = StringField('Label', validators=[
-            DataRequired(), Length(2, 100), is_identifier
+            DataRequired(), Length(2, 100), is_identifier, is_unique_label_in_series
         ])
         config = StringField('Config', widget=TextArea())
         submit = SubmitField('Queue a job')

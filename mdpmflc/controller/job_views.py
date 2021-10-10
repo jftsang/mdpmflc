@@ -1,7 +1,7 @@
 import logging
 
 import flask
-from flask import render_template, Blueprint
+from flask import render_template, Blueprint, redirect, url_for, flash
 
 from mdpmflc.config import DPMDRIVERS
 from mdpmflc.controller.forms import JobSubmissionFormFactory
@@ -25,7 +25,7 @@ def job_index_view():
 def queue_job_view():
     """Receive a request for a simulation and queue it."""
     series_choices = list(map(lambda x: (x.id, x.name), Series.query.all()))
-    form = JobSubmissionFormFactory(series_choices)
+    form = JobSubmissionFormFactory(series_choices, Job.query)
 
     if form.validate_on_submit():
         # https://code.luasoftware.com/tutorials/flask/flask-get-request-parameters-get-post-and-json/
@@ -35,15 +35,12 @@ def queue_job_view():
             form.driver.data, form.series.data, form.label.data, form.config.data
         )
 
-        # return pformat(dir(flask.request.form))
-        # return f"Started a run of driver {driver} on series {sername}, simulation name {simname}"
-        # return Response(flask.request.get_json(), mimetype="application/json")
         series_name = Series.query.get(form.series.data).name
-        return render_template("jobs/successful_queue.html",
-                               hostname=flask.request.host,
-                               driver=form.driver.data,
-                               sername=series_name,
-                               simname=form.label.data)
+        flash(
+            f"Started a run of driver {form.driver.data} on series {series_name}, simulation name {form.label.data}",
+            "success"
+        )
+        return job_index_view()
 
     return render_template("jobs/queue_form.html",
                            drivers=DPMDRIVERS,
