@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from flask import Flask
+from flask_migrate import Migrate
 
 from mdpmflc.controller.driver_views import driver_views
 from mdpmflc.controller.job_views import job_views
@@ -61,3 +62,4 @@ def start_app():
 
 
 app = create_app()
+migrate = Migrate(app, db)
