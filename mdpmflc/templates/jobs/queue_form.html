@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Submit a new job{% endblock %}
+{% block content %}
+
+<form action="{{ url_for('job_views.queue_job_view') }}"
+      method="post" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+
+    <fieldset class="form-group">
+        <legend class="border-bottom mb-4">Submit a job request</legend>
+        <div class="form-group">
+            {{ form.driver.label(class="form-control-label") }}
+
+            {% if form.driver.errors %}
+                {{ form.driver(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.driver.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.driver(class="form-control form-control-lg") }}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.series.label() }}
+            {% if form.series.errors %}
+                {{ form.series(class="form-control form-control-lg is-invalid") }}
+                {% for error in form.series.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            {% else %}
+                {{ form.series(class="form-control form-control-lg") }}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.label.label() }}<br/>
+            {% if form.label.errors %}
+                {{ form.label(class="form-control form-control-lg is-invalid") }}
+                {% for error in form.label.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            {% else %}
+                {{ form.label(class="form-control form-control-lg") }}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.config.label() }}<br/>
+            {% if form.config.errors %}
+                {{ form.config(class="form-control form-control-lg is-invalid") }}
+                {% for error in form.config.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            {% else %}
+                {{ form.config(class="form-control form-control-lg", rows=40, cols=80) }}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+    </fieldset>
+</form>
+
+{% endblock %}

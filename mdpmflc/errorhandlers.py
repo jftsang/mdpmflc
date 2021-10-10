@@ -20,9 +20,9 @@ def simulation_not_found_handler(error):
 
 def simulation_already_exists_handler(error):
     return render_template('errors/simulationalreadyexists.html',
-                           sername=error.args[0],
-                           simname=error.args[1],
-                           driver=error.args[2],
+                           driver=error.args[0],
+                           sername=error.args[1],
+                           label=error.args[2],
                            message=str(error)), 409
 
 

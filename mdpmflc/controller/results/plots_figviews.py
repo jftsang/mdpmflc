@@ -1,6 +1,7 @@
 """Endpoints that serve plots, as PNG files."""
 import logging
 import os
+from typing import Dict, Union, Optional
 
 import moviepy.editor as mp
 
@@ -18,7 +19,8 @@ from matplotlib.animation import FuncAnimation, ImageMagickWriter
 from matplotlib.backends.backend_agg import FigureCanvas, FigureCanvasAgg
 
 from mdpmflc import CACHEDIR
-from mdpmflc.model.simulation import Simulation
+from mdpmflc.models import Simulation
+from mdpmflc.utils.decorators import timed
 from mdpmflc.utils.graphics import create_data_figure, create_ene_figure
 from mdpmflc.utils.anims import create_animation
 
@@ -40,47 +42,44 @@ def need_to_regenerate(target, sources):
     return False
 
 
+def floatify(dic: Dict[str, str]) -> Dict[str, Union[None, float, str]]:
+    """To be used on flask.request.values. Convert numerical values into
+    floats, and keep other values as either strings or Nones.
+    """
+    def maybe_float(x: Optional[str]) -> Union[None, float, str]:
+        if x is None:
+            return None
+        try:
+            return float(x)
+        except ValueError:
+            return x
+
+    return {key: maybe_float(dic[key]) for key in dic}
+
+
 plots_figviews = Blueprint('plots_figviews', __name__, )
 
 @plots_figviews.route("/<sername>/<simname>/<ind>/data")
+@timed("data_plot_figview for {simname}:{ind}")
 def data_plot_figview(sername, simname, ind):
     """A plot of a .data file, in PNG format by default."""
     sim = Simulation(sername, simname)
-    format = flask.request.values.get("format")
-    if format is None:
-        format = "png"
+
+    format = flask.request.values.get("format", "png")
+    if format not in ["png", "svg", "pdf"]:
+        raise NotImplementedError
 
     data_fn = sim.data_fn(ind)
     dataplot_fn = os.path.join(
         CACHEDIR, "graphics", sername, simname, f"{simname}.data.{ind}.{format}"
     )
 
-    if (flask.request.values.get("nocache")
-        or need_to_regenerate(dataplot_fn, [data_fn])):
-        logging.info("Generating a new image")
-        os.makedirs(os.path.dirname(dataplot_fn), exist_ok=True)
+    logging.info("Generating a new image")
+    os.makedirs(os.path.dirname(dataplot_fn), exist_ok=True)
 
-        samplesize = flask.request.values.get("samplesize")
-        samplesize = float(samplesize) if samplesize else 20000
+    fig = create_data_figure(data_fn, **floatify(flask.request.values))
 
-        fig_width = flask.request.values.get("width")
-        fig_width = float(fig_width) if fig_width else 7
-        fig_height = flask.request.values.get("height")
-        fig_height = float(fig_height) if fig_height else None
-
-        fig = create_data_figure(
-            data_fn, samplesize=samplesize,
-            fig_width=fig_width,
-            fig_height=fig_height,
-        )
-        # canvas = FigureCanvas(fig)
-        # print(dir(canvas))
-        if format in ["png", "svg", "pdf"]:
-            fig.savefig(dataplot_fn, format=format)
-        else:
-            raise NotImplementedError
-    else:
-        logging.info("Serving a cached image")
+    fig.savefig(dataplot_fn, format=format)
 
     with open(dataplot_fn, "rb", buffering=0) as dataplot_f:
         return Response(dataplot_f.read(), mimetype=MIMETYPE[format])

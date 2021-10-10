@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Job queue{% endblock %}
+{% block content %}
+<table>
+    <thead>
+    <tr>
+        <td>id</td>
+        <td>driver</td>
+        <td>series</td>
+        <td>label</td>
+        <td>submitted on</td>
+        <td>status</td>
+    </tr>
+    </thead>
+    <tbody>
+    {% for job in queue %}
+        <tr>
+            <td>{{ job.id }}</td>
+            <td><a href="{{ url_for('driver_views.driver_page', dri=job.driver) }}">
+                {{ job.driver }}
+            </a></td>
+            <td><a href="{{ url_for('series_views.series_view',
+                sername=job.series) }}">{{ job.series }}</a></td>
+            <td><a href="{{ url_for(
+                            'simulation_views.simulation_view',
+                            sername=job.series, simname=job.label
+                        ) }}">
+                {{ job.label }}
+            </a></td>
+            <td>{{ job.submitted_date }}</td>
+            <td>{{ job.status }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+    <a href="{{ url_for('job_views.queue_job_view') }}">queue a job</a>
+{% endblock %}

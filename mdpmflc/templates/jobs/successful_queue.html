@@ -1,16 +1,17 @@
 <!doctype html>
 <html>
 <head>
-    <title>Driver {{driver}} on server {{hostname}} successfully started</title>
+    <title>Driver {{driver}} on server {{hostname}} successfully queued</title>
 </head>
 
 <body>
 
-<h1>Driver {{driver}} on server {{hostname}} successfully started</h1>
+<h1>Driver {{driver}} on server {{hostname}} successfully queued</h1>
 
+<a href="{{ url_for('job_views.job_index_view') }}">go to job queue</a>
+<br>
 <a href="{{ url_for('simulation_views.simulation_view', sername=sername, simname=simname) }}">go to results page for {{sername}}/{{simname}}</a>
-
-<br/>
+<br>
 <a href="/driver/{{driver}}">start another</a>
 
 </body>

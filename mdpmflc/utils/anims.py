@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, ImageMagickWriter
 import numpy as np
 
-from mdpmflc.model.simulation import Simulation
+from mdpmflc.models import Simulation
 from mdpmflc.utils.read_file import read_data_file
 
 

@@ -3,7 +3,7 @@ import os
 
 from flask import Response, Blueprint
 
-from mdpmflc.model.simulation import Simulation
+from mdpmflc.models import Simulation
 
 raw_file_views = Blueprint('raw_file_views', __name__, )
 

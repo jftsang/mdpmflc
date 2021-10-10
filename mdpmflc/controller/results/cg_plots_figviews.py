@@ -2,7 +2,6 @@
 import logging
 import os
 from tempfile import NamedTemporaryFile, TemporaryDirectory
-from typing import Union, Optional, Dict
 
 import moviepy.editor as mp
 
@@ -19,8 +18,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 from mdpmflc import CACHEDIR
-from mdpmflc.controller.results.plots_figviews import MIMETYPE
-from mdpmflc.model.simulation import Simulation
+from mdpmflc.controller.results.plots_figviews import MIMETYPE, floatify
+from mdpmflc.models import Simulation
 from mdpmflc.utils.decorators import timed
 from mdpmflc.utils.graphics_cg import plot_depth, plot_all_cg_fields
 
@@ -28,22 +27,6 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 cg_plots_figviews = Blueprint('cg_plots_figviews', __name__, )
-
-
-def floatify(dic: Dict[str, str]) -> Dict[str, Union[None, float, str]]:
-    """To be used on flask.request.values.get or flask.request.values.put.
-    Convert numerical values into floats, and keep other values as
-    either strings or Nones.
-    """
-    def maybe_float(x: Optional[str]) -> Union[None, float, str]:
-        if x is None:
-            return None
-        try:
-            return float(x)
-        except ValueError:
-            return x
-
-    return {key: maybe_float(dic[key]) for key in dic}
 
 
 @cg_plots_figviews.route("/<sername>/<simname>/<ind>/depth")
@@ -79,13 +62,15 @@ def cg_plot_figview(sername, simname, ind, field):
     if field not in {"depth", "rho", "px", "py", "u", "v"}:
         raise NotImplementedError
 
+    format = flask.request.values.get("format", "png")
+    if format not in ["png", "svg", "pdf"]:
+        raise NotImplementedError
+
+
     sim = Simulation(sername, simname)
 
     data_fn = sim.data_fn(ind)
 
-    format = flask.request.values.get("format", "png")
-    if format not in ["png", "svg", "pdf"]:
-        raise NotImplementedError
 
     logging.info("Generating new CG plots")
     cgfigs = plot_all_cg_fields(

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- https://jinja.palletsprojects.com/en/3.0.x/templates/#template-inheritance -->
+<head>
+    {% block head %}
+        <title>{% block title %}{% endblock %} - mdpmflc</title>
+        <meta charset="UTF-8">
+        <link rel="shortcut icon" href="{{url_for('static', filename='favicon.ico')}}">
+        <!-- Bootstrap CSS -->
+
+        <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}">
+    {% endblock %}
+</head>
+
+<body>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div id="flashes">
+        <ul class="flashes">
+        {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div id="content">{% block content %}{% endblock %}</div>
+
+
+</body>
+</html>

@@ -1,10 +1,6 @@
-<!doctype html>
-<html>
-<head>
-    <title>Driver {{driver}} on server {{hostname}}</title>
-</head>
-
-<body>
+{% extends "base.html" %}
+{% block title %}Driver {{ driver }}{% endblock %}
+{% block content %}
 
 <h1>Driver {{driver}} on server <a href="/">{{hostname}}</a></h1>
 
@@ -12,35 +8,34 @@
 
 <p><a href="{{ url_for('driver_views.driver_source', dri=driver) }}">source</a></p>
 
-<h2>Start a new simulation</h2>
-
-<form action="{{ url_for('job_views.queue_simulation') }}"
-      method="post" enctype="multipart/form-data">
-    Driver name is <input type="input" name="driver" value={{driver}} readonly/>
-    <br/>
-    <label for="sername">Series name</label>
-    <select id="sername" name="sername" required="true">
-        <option></option>
-        {% for s in available_series %}
-            <option value="{{s}}">{{s}}</option>
-        {% endfor %}
-    </select>
-    <br/>
-    <label for="simname">Simulation name</label>
-    <input id="simname" type="input" name="simname" value="" required="true"/>
-    <br/>
-    <!--
-    Configuration file <input type="file" name="configfile"/>
-    -->
-    <label for="configfile">Configuration</label><br/>
-    <textarea id="configfile" name="configfile" rows="40" cols="80"></textarea>
-    <br/>
-    <input type="submit" value="Queue a job"/>
-</form>
+{#<h2>Start a new simulation</h2>#}
+{##}
+{#<form action="{{ url_for('job_views.queue_job_view') }}"#}
+{#      method="post" enctype="multipart/form-data">#}
+{#    Driver name is <input type="input" name="driver" value={{driver}} readonly/>#}
+{#    <br/>#}
+{#    <label for="sername">Series name</label>#}
+{#    <select id="sername" name="sername" required="true">#}
+{#        <option></option>#}
+{#        {% for s in available_series %}#}
+{#            <option value="{{s}}">{{s}}</option>#}
+{#        {% endfor %}#}
+{#    </select>#}
+{#    <br/>#}
+{#    <label for="simname">Simulation name</label>#}
+{#    <input id="simname" type="input" name="simname" value="" required="true"/>#}
+{#    <br/>#}
+{#    <!--#}
+{#    Configuration file <input type="file" name="configfile"/>#}
+{#    -->#}
+{#    <label for="configfile">Configuration</label><br/>#}
+{#    <textarea id="configfile" name="configfile" rows="40" cols="80"></textarea>#}
+{#    <br/>#}
+{#    <input type="submit" value="Queue a job"/>#}
+{#</form>#}
 
 <p>
     <a href="/">Back to main page.</a>
 </p>
 
-</body>
-</html>
+{% endblock %}
