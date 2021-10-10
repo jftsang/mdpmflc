@@ -17,7 +17,12 @@ from .models import db
 
 def register_extensions(app):
     db.init_app(app)
-    Migrate().init_app(app, db)
+    app.app_context().push()
+    migrate = Migrate()
+    if db.engine.url.drivername == 'sqlite':
+        migrate.init_app(app, db, render_as_batch=True)
+    else:
+        migrate.init_app(app, db)
 
 
 def create_app():

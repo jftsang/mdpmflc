@@ -20,10 +20,10 @@
                 {{ job.driver }}
             </a></td>
             <td><a href="{{ url_for('series_views.series_view',
-                sername=job.series) }}">{{ job.series }}</a></td>
+                sername=job.series.name) }}">{{ job.series }}</a></td>
             <td><a href="{{ url_for(
                             'simulation_views.simulation_view',
-                            sername=job.series, simname=job.label
+                            sername=job.series.name, simname=job.label
                         ) }}">
                 {{ job.label }}
             </a></td>

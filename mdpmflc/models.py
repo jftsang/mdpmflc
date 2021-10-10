@@ -9,14 +9,27 @@ from mdpmflc.utils.read_file import read_restart_file
 
 db = SQLAlchemy()
 
+class Series(db.Model):
+    id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
+    name = db.Column(db.String(100))
+
+    def __str__(self):
+        return self.name
+
+    __repr__ = __str__
+
 
 class Job(db.Model):
     id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
     driver = db.Column(db.String(100))
-    series = db.Column(db.String(100))
+
+    series_id = db.Column(db.Integer, db.ForeignKey('series.id'))
+    series = db.relationship("Series", backref=db.backref("series", uselist=False))
+
     label = db.Column(db.String(100), nullable=False)
     config = db.Column(db.Text)
     submitted_date = db.Column(db.DateTime(), default=datetime.utcnow)
+    command = db.Column(db.String(500))
     status = db.Column(db.Integer, nullable=False)
 
     def __init__(self, driver, series, label, config, status):
@@ -25,6 +38,11 @@ class Job(db.Model):
         self.label = label
         self.config = config
         self.status = status
+
+    def __str__(self):
+        return f"{self.series}: {self.label}, running {self.driver}"
+
+    __repr__ = __str__
 
 
 class Simulation:
