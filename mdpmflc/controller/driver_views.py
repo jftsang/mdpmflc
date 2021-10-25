@@ -4,6 +4,7 @@ import flask
 from flask import Response, render_template, Blueprint
 
 from mdpmflc import SRCDIR
+from mdpmflc.models import Driver
 from mdpmflc.utils.driver import get_config_fields
 from mdpmflc.utils.listings import get_available_series
 
@@ -20,25 +21,27 @@ def driver_page(dri):
                            available_series=get_available_series())
 
 
-@driver_views.route("/<dri>/source")
-def driver_source(dri):
+@driver_views.route("/<driver_name>/source")
+def driver_source(driver_name):
     """A page that shows a driver's source code."""
     # Read the source file
-    src_fn = os.path.join(SRCDIR, dri + ".cpp")
-    src_f = open(src_fn, "r")
-    src = src_f.read()
+    driver = Driver.query.filter_by(name=driver_name).one()
+    try:
+        with open(driver.src_path) as src_f:
+            src = src_f.read()
+            pars_fields = get_config_fields(src, "pars")
+    except (TypeError, FileNotFoundError):
+        src = None
 
     # Read the example config, if it is available
-    example_config_fn = os.path.join(SRCDIR, dri + ".example.config")
     try:
-        example_config_f = open(example_config_fn, "r")
-        example_config = example_config_f.read()
-    except OSError:
+        with open(driver.example_path) as example_config_f:
+            example_config = example_config_f.read()
+    except (TypeError, FileNotFoundError):
         example_config = None
 
-    pars_fields = get_config_fields(src, "pars")
     return render_template("drivers/driver_src.html",
-                           driver=dri,
+                           driver=driver_name,
                            src=src,
                            cfgex=example_config,
                            pars_fields=pars_fields)

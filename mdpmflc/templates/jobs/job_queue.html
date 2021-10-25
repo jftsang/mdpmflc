@@ -16,7 +16,7 @@
     {% for job in queue %}
         <tr>
             <td>{{ job.id }}</td>
-            <td><a href="{{ url_for('driver_views.driver_page', dri=job.driver) }}">
+            <td><a href="{{ url_for('driver_views.driver_page', dri=job.driver.name) }}">
                 {{ job.driver }}
             </a></td>
             <td><a href="{{ url_for('series_views.series_view',

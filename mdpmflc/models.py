@@ -21,13 +21,14 @@ class Series(db.Model):
 
 class Job(db.Model):
     id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
-    driver = db.Column(db.String(100))
+    driver_id = db.Column(db.Integer, db.ForeignKey('driver.id'))
+    driver = db.relationship("Driver", backref=db.backref("driver", uselist=False))
 
     series_id = db.Column(db.Integer, db.ForeignKey('series.id'))
     series = db.relationship("Series", backref=db.backref("series", uselist=False))
 
     label = db.Column(db.String(100), nullable=False)
-    config = db.Column(db.Text)
+    config = db.Column(db.Text())
     submitted_date = db.Column(db.DateTime(), default=datetime.utcnow)
     command = db.Column(db.String(500))
     status = db.Column(db.Integer, nullable=False)
