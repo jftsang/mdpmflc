@@ -1,5 +1,7 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
+from functools import wraps
+from os.path import getctime
 
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
@@ -8,6 +10,30 @@ from mdpmflc import DPMDIR
 from mdpmflc.utils.read_file import read_restart_file
 
 db = SQLAlchemy()
+
+def maybe(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Exception:
+            return None
+
+    return wrapper
+
+
+class Driver(db.Model):
+    id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
+    name = db.Column(db.String(100))
+    src_path = db.Column(db.String(500))
+    example_path = db.Column(db.String(500))
+    bin_path = db.Column(db.String(500))
+
+    def __str__(self):
+        return self.name
+
+    __repr__ = __str__
+
 
 class Series(db.Model):
     id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
@@ -47,15 +73,20 @@ class Job(db.Model):
 
 
 class Simulation:
-    def __init__(self, sername, simname):
+    def __init__(self, sername, label):
         self.sername = sername
-        self.simname = simname
+        self.label = label
+
+    def __str__(self):
+        return self.label
+
+    __repr__ = __str__
 
     def simdir(self):
-        return os.path.join(DPMDIR, self.sername, self.simname)
+        return os.path.join(DPMDIR, self.sername, self.label)
 
     def config_fn(self):
-        return os.path.join(self.simdir(), f"{self.simname}.config")
+        return os.path.join(self.simdir(), f"{self.label}.config")
 
     def out_fn(self):
         # return os.path.join(self.simdir(), f"{self.simname}.log")
@@ -70,24 +101,24 @@ class Simulation:
         simulation. If ind is not given then give the base name.
         """
         if ind is not None:
-            return os.path.join(self.simdir(), f"{self.simname}.data.{ind}")
+            return os.path.join(self.simdir(), f"{self.label}.data.{ind}")
         else:
-            return os.path.join(self.simdir(), f"{self.simname}.data")
+            return os.path.join(self.simdir(), f"{self.label}.data")
 
     def fstat_fn(self, ind=None):
         if ind is not None:
-            return os.path.join(self.simdir(), f"{self.simname}.fstat.{ind}")
+            return os.path.join(self.simdir(), f"{self.label}.fstat.{ind}")
         else:
-            return os.path.join(self.simdir(), f"{self.simname}.fstat")
+            return os.path.join(self.simdir(), f"{self.label}.fstat")
 
     def ene_fn(self):
-        return os.path.join(self.simdir(), f"{self.simname}.ene")
+        return os.path.join(self.simdir(), f"{self.label}.ene")
 
     def restart_fn(self, ind=None):
         if ind is not None:
-            return os.path.join(self.simdir(), f"{self.simname}.restart.{ind}")
+            return os.path.join(self.simdir(), f"{self.label}.restart.{ind}")
         else:
-            return os.path.join(self.simdir(), f"{self.simname}.restart")
+            return os.path.join(self.simdir(), f"{self.label}.restart")
 
     def status(self):
         return read_restart_file(self.restart_fn(), header_only=True)
@@ -100,17 +131,26 @@ class Simulation:
         """
         files = os.listdir(self.simdir())
         files_parsed = [f.split(".") for f in files]
-        max_data_index = max([int(fp[2]) for fp in files_parsed if len(fp) == 3 and fp[1] == "data"])
-        max_fstat_index = max([int(fp[2]) for fp in files_parsed if len(fp) == 3 and fp[1] == "fstat"])
+        max_data_index = maybe(max)([int(fp[2]) for fp in files_parsed if len(fp) == 3 and fp[1] == "data"])
+        max_fstat_index = maybe(max)([int(fp[2]) for fp in files_parsed if len(fp) == 3 and fp[1] == "fstat"])
         return files_parsed, max_data_index, max_fstat_index
 
     def file_list(self):
         """List of files belonging to the simulation, in the simdir."""
         return os.listdir(self.simdir())
 
+    @maybe
+    def time_to_complete(self) -> timedelta:
+        file_0 = self.data_fn(0)
+        _, max_data_index, _ = self.max_inds()
+        file_recent = self.data_fn(max_data_index)
+        diff_time = getctime(file_recent) - getctime(file_0)
+        return timedelta(seconds=diff_time)
+
 
 class DataFile:
     """A class that represents a .data file."""
+
     def __init__(self, sim: Simulation, ind: int):
         self.sim = sim
         self.ind = ind
