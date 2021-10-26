@@ -2,24 +2,17 @@ import os
 from datetime import datetime, timedelta
 from functools import wraps
 from os.path import getctime
+from typing import Tuple, Any
 
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.datastructures import ImmutableDict
 
 from mdpmflc import DPMDIR
+from mdpmflc.utils.decorators import Maybe
 from mdpmflc.utils.read_file import read_restart_file
 
 db = SQLAlchemy()
-
-def maybe(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        except Exception:
-            return None
-
-    return wrapper
 
 
 class Driver(db.Model):
@@ -131,15 +124,17 @@ class Simulation:
         """
         files = os.listdir(self.simdir())
         files_parsed = [f.split(".") for f in files]
-        max_data_index = maybe(max)([int(fp[2]) for fp in files_parsed if len(fp) == 3 and fp[1] == "data"])
-        max_fstat_index = maybe(max)([int(fp[2]) for fp in files_parsed if len(fp) == 3 and fp[1] == "fstat"])
+
+        maybe_max = Maybe(ValueError)(max)
+        max_data_index = maybe_max([int(file[2]) for file in files_parsed if len(file) == 3 and file[1] == "data"])
+        max_fstat_index = maybe_max([int(file[2]) for file in files_parsed if len(file) == 3 and file[1] == "fstat"])
         return files_parsed, max_data_index, max_fstat_index
 
     def file_list(self):
         """List of files belonging to the simulation, in the simdir."""
         return os.listdir(self.simdir())
 
-    @maybe
+    @Maybe(ValueError, FileNotFoundError)
     def time_to_complete(self) -> timedelta:
         file_0 = self.data_fn(0)
         _, max_data_index, _ = self.max_inds()
