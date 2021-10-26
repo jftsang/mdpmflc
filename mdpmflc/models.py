@@ -107,16 +107,16 @@ class Simulation:
     def ene_fn(self):
         return os.path.join(self.simdir(), f"{self.label}.ene")
 
-    def restart_fn(self, ind=None):
+    def restart_fn(self, ind=None) -> str:
         if ind is not None:
             return os.path.join(self.simdir(), f"{self.label}.restart.{ind}")
         else:
             return os.path.join(self.simdir(), f"{self.label}.restart")
 
-    def status(self):
+    def status(self) -> ImmutableDict:
         return read_restart_file(self.restart_fn(), header_only=True)
 
-    def max_inds(self):
+    def max_indices(self) -> Tuple[Any, int, int]:
         """Give the maximum indices of .data. and .fstat. files that are
         present in the sim directory. This may be different from the
         indices recorded in the .restart file, if the counter has been
