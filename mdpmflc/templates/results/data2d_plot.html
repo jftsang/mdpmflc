@@ -1,12 +1,6 @@
-<!doctype html>
-<html>
-<head>
-    <title>data file</title>
-    <link rel = "stylesheet" type = "text/css" href="{{ url_for('static', filename='style.css') }}">
-</head>
-
-
-<body>
+{% extends "base.html" %}
+{% block title %}data file{% endblock %}
+{% block content %}
 
 <div id="pageheading" style="text-align:center;">
     <h1>series <a href="{{ url_for('series_views.series_view', sername=sername) }}">{{sername}}</a>,
@@ -19,5 +13,4 @@
 
 <img src="{{ url_for('plots_figviews.data_plot_figview', sername=sername, simname=simname, ind=ind) }}"/>
 
-</body>
-</html>
+{% endblock %}
