@@ -7,6 +7,8 @@ from numpy import bitwise_and
 from mdpmflc.cache import cache
 from mdpmflc.utils.decorators import timed
 
+
+@lambda f: np.vectorize(f, excluded=[2])
 def kernel(r, kernel_width, normalised=True):
     if r <= kernel_width:
         if normalised:
@@ -17,8 +19,6 @@ def kernel(r, kernel_width, normalised=True):
     else:
         return 0
 
-kernel = np.vectorize(kernel, excluded=[2])
-
 
 @np.vectorize
 def kernel_hard(r, kernel_width):
@@ -27,14 +27,13 @@ def kernel_hard(r, kernel_width):
     )
 
 
+@lambda f: np.vectorize(f, otypes=[float], excluded=[1])
 def kernel3d(r, kernel_width):
     return np.where(
         r <= kernel_width,
         105 / (32 * np.pi * kernel_width**7) * (kernel_width**2 - r**2)**2,
         0,
     )
-
-kernel3d = np.vectorize(kernel3d, otypes=[float], excluded=[1])
 
 
 @np.vectorize
@@ -46,6 +45,7 @@ def kernel3d_hard(r, kernel_width):
     )
 
 
+@lambda f: np.vectorize(f, otypes=[float], excluded=[1])
 def kernel_depthavg(r, kernel_width):
     """Depth-average of the 3D Lucy kernel, where r is the radial
     coordinate in cylindricals, not sphericals.
@@ -57,18 +57,13 @@ def kernel_depthavg(r, kernel_width):
     )
 
 
-kernel_depthavg = np.vectorize(kernel_depthavg, otypes=[float], excluded=[1])
-
-
+@lambda f: np.vectorize(f, otypes=[float], excluded=[1])
 def kernel_depthavg_hard(r, kernel_width):
     return np.where(
         r <= kernel_width,
         3 / (2 * np.pi * kernel_width**3) * (kernel_width**2 - r**2)**0.5,
         0,
     )
-
-
-kernel_depthavg_hard = np.vectorize(kernel_depthavg_hard, otypes=[float], excluded=[1])
 
 
 def dist(x0, y0, x1, y1):
@@ -216,6 +211,9 @@ def cg_general3d(df, x, y, z, kernel_width):
     return np.sum(kers * df2.q)
 
 
+@cache.memoize(tag="x_front")
+@timed("calculating the front position")
+@lambda f: np.vectorize(f, excluded=[0, 2, 3, 4])
 def x_front(df, y, dy, periodicity=None, percentile=95):
     if periodicity:
         sub_df = df[
@@ -234,10 +232,6 @@ def x_front(df, y, dy, periodicity=None, percentile=95):
         return np.percentile(sub_df.x, percentile)
     else:
         return 0
-
-
-x_front = np.vectorize(x_front, excluded=[0, 2, 3, 4])
-x_front = timed("calculating the front position")(x_front)
 
 
 @cache.memoize(tag="depth")

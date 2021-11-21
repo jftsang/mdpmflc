@@ -3,7 +3,11 @@ files of a simulation.
 """
 
 import os
+from typing import List
+
 from mdpmflc import DPMDIR
+from mdpmflc.exceptions import SeriesNotFoundError
+from mdpmflc.models import Simulation
 
 
 def get_available_series():
@@ -16,22 +20,22 @@ def get_available_series():
     return available_series
 
 
-def get_available_simulations(sername):
-    """List the simulations under the specified series. Returns None if
-    there is no series of this name.
+def get_available_simulations(series_name: str) -> List[Simulation]:
+    """List the simulations under the specified series.
     """
-    serdir = os.path.join(DPMDIR, sername)
-    if os.path.isdir(serdir):
-        available_simulations = [
-            d
-            for d in os.listdir(serdir)
-            if (
-                os.path.isdir(os.path.join(serdir, d))
-                and os.path.isfile(os.path.join(serdir, d, f"{d}.config"))
-            )
-        ]
-        print(available_simulations)
-        available_simulations = sorted(available_simulations)
-        return available_simulations
-    else:
-        return None
+    serdir = os.path.join(DPMDIR, series_name)
+    if not os.path.isdir(serdir):
+        raise SeriesNotFoundError
+
+    simulation_names = [
+        d
+        for d in os.listdir(serdir)
+        if (
+            os.path.isdir(os.path.join(serdir, d))
+            and os.path.isfile(os.path.join(serdir, d, f"{d}.config"))
+        )
+    ]
+    simulations = [
+        Simulation(series_name, label) for label in sorted(simulation_names)
+    ]
+    return simulations

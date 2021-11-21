@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 
 from mdpmflc.config import DPMDIR, DPMDRIVERS
 from mdpmflc.errorhandlers import *
-from mdpmflc.models import Job, db, Simulation, Series
+from mdpmflc.models import Job, db, Simulation, Series, Driver
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -27,9 +27,10 @@ def sanitise_filename(filename):
     return filename
 
 
-def queue_job(driver, series_id, label, configfile):
+def queue_job(driver_id, series_id, label, configfile):
     """Queue a simulation."""
     # Check for duplication
+    driver = Driver.query.get(driver_id)
     series = Series.query.get(series_id)
     if Job.query.filter_by(series=series, label=label).all():
         raise SimulationAlreadyExistsError(

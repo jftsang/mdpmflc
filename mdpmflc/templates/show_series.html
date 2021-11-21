@@ -1,21 +1,43 @@
 <!doctype html>
 <html>
 <head>
-    <title>series {{sername}}</title>
+    <title>series {{series}}</title>
 </head>
 
 <body>
 
-    <h1>simulations under the series {{sername}}</h1>
+    <h1>simulations under the series {{series}}</h1>
 
-    <p><a href="/">{{hostname}}</a>/{{sername}}</p>
+    <p><a href="/">{{hostname}}</a>/{{series}}</p>
 
     <h2>Available simulations</h2>
-    <ul>
+
+    {% if available_simulations %}
+    <table>
+    <thead>
+    <tr>
+        <th>label</th>
+    </tr>
+    </thead>
+    <tbody>
     {% for sim in available_simulations %}
-        <li><a href="{{ url_for('simulation_views.simulation_view', sername=sername, simname=sim) }}">{{sim}}</a></li>
+        <tr>
+            <td>
+                <a href="{{
+                        url_for('simulation_views.simulation_view',
+                        sername=series, simname=sim.label) }}">
+                    {{sim.label}}
+                </a>
+            </td>
+        </tr>
+
     {% endfor %}
-    </ul>
+    </tbody>
+    </table>
+    {% else %}
+        No simulations in this series.
+    {% endif %}
+
 
 </body>
 </html>

@@ -5,7 +5,7 @@ from flask_breadcrumbs import register_breadcrumb
 
 from mdpmflc.config import DPMDRIVERS
 from mdpmflc.controller.forms import JobSubmissionFormFactory
-from mdpmflc.models import Job, Series
+from mdpmflc.models import Job, Series, Driver
 from mdpmflc.utils.jobs import queue_job, start_job
 from mdpmflc.utils.listings import get_available_series
 
@@ -25,8 +25,9 @@ def job_index_view():
 @job_views.route("/queue", methods=["GET", "POST"])
 def queue_job_view():
     """Receive a request for a simulation and queue it."""
-    series_choices = list(map(lambda x: (x.id, x.name), Series.query.all()))
-    form = JobSubmissionFormFactory(series_choices, Job.query)
+    drivers = Driver.query.all()
+    seriess = Series.query.all()
+    form = JobSubmissionFormFactory(drivers, seriess, Job.query)
 
     if form.validate_on_submit():
         # https://code.luasoftware.com/tutorials/flask/flask-get-request-parameters-get-post-and-json/

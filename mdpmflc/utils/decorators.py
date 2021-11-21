@@ -3,6 +3,7 @@ import logging
 from inspect import signature
 from time import time
 
+
 def timed(msg="", log_fn=logging.info):
     """Display log messages before and after running the function, with
     the latter message displaying the elapsed time.
@@ -34,3 +35,20 @@ def timed(msg="", log_fn=logging.info):
 
         return timed_f
     return decorator
+
+
+class Maybe:
+    def __init__(self, *exc_classes):
+        self.exc_classes = exc_classes
+
+    def __call__(self, f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            try:
+                return f(*args, **kwargs)
+            except Exception as exc:
+                if any(isinstance(exc, cls) for cls in self.exc_classes):
+                    return None
+                raise
+
+        return wrapper

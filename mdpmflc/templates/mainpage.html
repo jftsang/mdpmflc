@@ -19,9 +19,9 @@
     <h2>Available simulation series results</h2>
     <p>
     <ul>
-        {% for sername in available_series %}
-            <li><a href="{{ url_for('series_views.series_view', sername=sername) }}">
-                {{sername}}</a></li>
+        {% for series in available_series %}
+            <li><a href="{{ url_for('series_views.series_view', series=series) }}">
+                {{series}}</a></li>
         {% endfor %}
     </ul>
     </p>
