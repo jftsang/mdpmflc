@@ -1,11 +1,8 @@
-<!doctype html>
-<html>
-<head>
-    <title>file list of {{sername}}:{{simname}}</title>
-    <link rel = "stylesheet" type = "text/css" href = "{{ url_for('static', filename='style.css') }}">
-</head>
-
-<body>
+{% extends "base.html" %}
+{% block title %}
+    file list of {{sername}}:{{simname}}
+{% endblock %}
+{% block content %}
 
 <div id="pageheading" style="text-align:center;">
     <h1>series <a href="/results/{{sername}}">{{sername}}</a>, simulation <a href="/results/{{sername}}/{{simname}}">{{simname}}</a></h1>
@@ -50,5 +47,4 @@
 
 <!-- <p>{# files #}</p> -->
 
-</body>
-</html>
+{% endblock %}

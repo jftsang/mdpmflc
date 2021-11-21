@@ -1,43 +1,37 @@
-<!doctype html>
-<html>
-<head>
-    <title>series {{series}}</title>
-</head>
+{% extends "base.html" %}
+{% block title %}Series {{series}}{% endblock %}
+{% block content %}
 
-<body>
+<h1>simulations under the series {{series}}</h1>
 
-    <h1>simulations under the series {{series}}</h1>
+<p><a href="/">{{hostname}}</a>/{{series}}</p>
 
-    <p><a href="/">{{hostname}}</a>/{{series}}</p>
+<h2>Available simulations</h2>
 
-    <h2>Available simulations</h2>
-
-    {% if available_simulations %}
-    <table>
-    <thead>
+{% if available_simulations %}
+<table>
+<thead>
+<tr>
+    <th>label</th>
+</tr>
+</thead>
+<tbody>
+{% for sim in available_simulations %}
     <tr>
-        <th>label</th>
+        <td>
+            <a href="{{
+                    url_for('simulation_views.simulation_view',
+                    sername=series, simname=sim.label) }}">
+                {{sim.label}}
+            </a>
+        </td>
     </tr>
-    </thead>
-    <tbody>
-    {% for sim in available_simulations %}
-        <tr>
-            <td>
-                <a href="{{
-                        url_for('simulation_views.simulation_view',
-                        sername=series, simname=sim.label) }}">
-                    {{sim.label}}
-                </a>
-            </td>
-        </tr>
 
-    {% endfor %}
-    </tbody>
-    </table>
-    {% else %}
-        No simulations in this series.
-    {% endif %}
+{% endfor %}
+</tbody>
+</table>
+{% else %}
+    No simulations in this series.
+{% endif %}
 
-
-</body>
-</html>
+{% endblock %}
