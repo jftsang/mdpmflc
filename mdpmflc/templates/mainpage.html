@@ -29,8 +29,9 @@
     <h2>Available drivers</h2>
     <p>
     <ul>
-        {% for dri in available_drivers %}
-            <li><a href="/driver/{{dri}}">{{dri}}</a> (<a href="/driver/{{dri}}/source">src</a>)</li>
+        {% for driver in available_drivers %}
+            <li><a href="{{ url_for('driver_views.driver_page', driver=driver.name) }}">
+                {{driver.name}}</a> (<a href="/driver/{{driver.name}}/source">src</a>)</li>
         {% endfor %}
     </ul>
     </p>

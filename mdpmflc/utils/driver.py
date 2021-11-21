@@ -1,7 +1,8 @@
 import re
+from typing import List
 
 
-def get_config_fields(src, pars_name="pars"):
+def get_config_fields(src, pars_name="pars") -> List[str]:
     """Reads a source code (of a MDPM driver) and find all instances of
     'pars.at("...")', to find out all the config fields that can be read
     from a config file.

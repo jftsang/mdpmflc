@@ -1,21 +1,16 @@
-<!doctype html>
-<html>
-    <head>
-        <title>Source code for driver {{ driver }}</title>
-        <link rel="stylesheet" type="text/css" href="/static/style.css">
-    </head>
-
-<body>
+{% extends "base.html" %}
+{% block title %}Source code for driver {{ driver }}{% endblock %}
+{% block content %}
 
 <h1>Source code for driver {{ driver }}</h1>
 
-<a href="{{ url_for('driver_views.driver_page', dri=driver) }}">back</a>
+<a href="{{ url_for('driver_views.driver_page', driver=driver) }}">back</a>
 
 <h2>Code listing</h2>
 <script src="/static/js/showhidecode.js"></script>
 <div class="codelisting">
     <button onclick="showHideCode('codelisting_text')">Show/hide code</button>
-    <a href="source/raw"><button>raw</button></a>
+    <a href="{{ url_for('driver_views.driver_source_raw', driver_name=driver) }}"><button>raw</button></a>
     <pre id="codelisting_text" class="collapsible">
 {{ src }}</pre>
 </div>
@@ -42,6 +37,4 @@
 <p>
     <a href="/">Back to main page.</a>
 </p>
-
-</body>
-</html>
+{% endblock %}
